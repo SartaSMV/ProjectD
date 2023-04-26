@@ -2,66 +2,84 @@
 
 
 module Pack #(
-  parameter SIZE_MEMORY = 8,
   parameter SIZE_BIT_PACK = 1976,
-  parameter SIZE_RAM = 1 << ($clog2(SIZE_BIT_PACK/SIZE_MEMORY) + 1),
-  parameter SIZE_ADDR_RAM = $clog2(SIZE_RAM),
-  parameter SIZE_ITERATOR_OUT_PACK = $clog2(SIZE_MEMORY)
+  parameter SIZE_INPUT_BIT = 8,
+  parameter SIZE_OUTPUT_BIT = 1,
+  parameter LENGTHE_INPUT_BIT = SIZE_BIT_PACK / SIZE_INPUT_BIT,
+  parameter LENGTHE_OUTPUT_BIT = SIZE_BIT_PACK / SIZE_OUTPUT_BIT,
+  parameter SIZE_ADDR_INPUT = $clog2(LENGTHE_INPUT_BIT),
+  parameter SIZE_ADDR_OUTPUT = $clog2(LENGTHE_OUTPUT_BIT),
+  parameter SISE_PREAMBLE = $clog2(32)
 )(
-  input wea,
   // Управляющие сигналы
   input i_clk,
   input i_reset,
   // Входные данные
-  input [SIZE_MEMORY-1:0] i_data,
+  input [SIZE_INPUT_BIT-1:0] i_data,
   input i_ready_output,
   input i_valid_input,
   // Выходные данные
-  output reg o_data,
-  output reg o_valid
+  output reg [SIZE_OUTPUT_BIT-1:0] o_data,
+  output reg o_valid,
+  output o_ready
 );
 
-// Память для хранения пакетов
-reg [SIZE_MEMORY-1:0] ram [SIZE_RAM-1:0];
-
-// Регистр обозначающий какой сейчас пакет заполняется
-reg input_pack;
-// Заполненость следующего пакета
-reg fill_next_pack;
 
 // Регистры для хранения адреса ячейки
-reg [SIZE_ADDR_RAM-2:0] addr_pack_in;
-reg [SIZE_ADDR_RAM-2:0] addr_pack_out;
+reg [SIZE_ADDR_INPUT-1:0] addr_pack_in;
+reg [SIZE_ADDR_OUTPUT-1:0] addr_pack_out;
 
-// Адрес записи и считывание данных
-assign addr_input = {input_pack, addr_pack_in[SIZE_ADDR_RAM-2:0]};
-assign addr_output = {~input_pack, addr_pack_out[SIZE_ADDR_RAM-2:0]};
+// Провод с выхода пакета
+wire [SIZE_OUTPUT_BIT-1:0] o_data_generate_pack;
 
+// Модуль с хранением пакетов и их заполнением
+memory_pack generate_pack
+(
+  // Управляющие сигналы
+  .i_clk(i_clk),
+  .i_reset(i_reset),
+  // Входные данные
+  .addr_pack_in(addr_pack_in),
+  .i_valid(i_valid_input),
+  .i_data(i_data),
+
+  .addr_pack_out(addr_pack_out),
+  // Выходные данные
+  .o_data(o_data_generate_pack),
+  .o_ready(o_ready)
+);
+
+// Работа для ввода бит
 always @(posedge i_clk or posedge i_reset) begin
   // Сброс
-  if (i_reset) begin
-    addr_pack_in <= {(SIZE_ADDR_RAM-1){1'b0}};
-    fill_next_pack <= 1'b0;
-    fill_next_pack <= 1'b0;
+  if(i_reset) begin
+    addr_pack_in <= SISE_PREAMBLE;
   end
-  // 
-  else if (i_valid_input) begin
-    if (wea) ram[addr_input] <= i_data;
+  else if(i_valid_input && o_ready) begin
+    if(addr_pack_in == LENGTHE_INPUT_BIT - 1) begin
+      addr_pack_in <= SISE_PREAMBLE;
+    end
+    else begin
+      addr_pack_in <= addr_pack_in + 1;
+    end
   end
 end
 
-reg [SIZE_ITERATOR_OUT_PACK-1:0] iterator_output_pack;
-always @(posedge i_clk or posedge i_reset) begin
-  // Сброс
-  if (i_reset) begin
-    input_pack <= 1'b0;
-    fill_next_pack <= 1'b0;
-    iterator_output_pack <= 0;
-    addr_pack_out <= {(SIZE_ADDR_RAM-1){1'b0}};
+// Работа для вывода бит
+always @(posedge i_ready_output or posedge i_reset) begin
+  if(i_reset) begin
+    addr_pack_out <= 1;
+    o_valid <= 1'b0;
   end
-  // 
-  else if (i_ready_output) begin
-    o_data <= ram[addr_output][iterator_output_pack];
+  else begin
+    if (addr_pack_out == LENGTHE_OUTPUT_BIT - 1) begin
+      addr_pack_out <= 1;
+    end
+    else begin
+      addr_pack_out <= addr_pack_out + 1;
+    end
+    o_data <= o_data_generate_pack;
+    o_valid <= 1'b1;
   end
 end
 
