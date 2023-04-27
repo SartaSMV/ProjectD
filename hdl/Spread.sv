@@ -8,7 +8,7 @@ module Spread #(
   // Управляющие сигналы
   input i_clk,
   input i_reset,
-  output reg o_readi,
+  output reg o_ready,
   // Входные данные
   input i_data,
   input i_valid,
@@ -40,7 +40,7 @@ assign o_data = spreading_code[counter] ^ input_data;
 always @(posedge i_clk or posedge i_reset) begin
   // Сброс
   if (i_reset) begin
-    o_readi <= 1'b0;
+    o_ready <= 1'b0;
     o_valid <= 1'b0;
 
     spreading_code <= {SPREAD{1'b0}};
@@ -51,7 +51,7 @@ always @(posedge i_clk or posedge i_reset) begin
   else if(i_lfsr_valid || o_valid) begin
     if(counter == SPREAD - 1) begin 
       i_lfsr_valid <= 1'b0;
-      o_readi <= 1'b1;
+      o_ready <= 1'b1;
       o_valid <= 1'b0;
     end
     else begin
@@ -60,12 +60,12 @@ always @(posedge i_clk or posedge i_reset) begin
     end
   end
   // Загрузка бита
-  else if(o_readi && i_valid) begin
+  else if(o_ready && i_valid) begin
     input_data <= i_data;
     o_valid <= 1'b1;
 
     counter <= {SIZE_COUNTER{1'b0}};
-    o_readi <= 1'b0;
+    o_ready <= 1'b0;
   end
   else o_valid <= 1'b0;
 end

@@ -13,14 +13,14 @@ module memory_pack #(
   // Управляющие сигналы
   input i_clk,
   input i_reset,
+  output reg o_ready,
   // Входные данные
   input [SIZE_ADDR_INPUT:0] addr_pack_in,
   input i_valid,
   input [SIZE_INPUT_BIT-1:0] i_data,
   input [SIZE_ADDR_OUTPUT:0] addr_pack_out,
   // Выходные данные
-  output [SIZE_OUTPUT_BIT-1:0] o_data,
-  output reg o_ready
+  output [SIZE_OUTPUT_BIT-1:0] o_data
 );
 
 // Регистр обозначающий какой сейчас пакет заполняется

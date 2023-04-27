@@ -14,14 +14,14 @@ module Pack #(
   // Управляющие сигналы
   input i_clk,
   input i_reset,
+  output o_ready,
   // Входные данные
   input [SIZE_INPUT_BIT-1:0] i_data,
   input i_ready_output,
   input i_valid_input,
   // Выходные данные
   output reg [SIZE_OUTPUT_BIT-1:0] o_data,
-  output reg o_valid,
-  output o_ready
+  output reg o_valid
 );
 
 
@@ -38,15 +38,15 @@ memory_pack generate_pack
   // Управляющие сигналы
   .i_clk(i_clk),
   .i_reset(i_reset),
+  .o_ready(o_ready),
   // Входные данные
   .addr_pack_in(addr_pack_in),
   .i_valid(i_valid_input),
   .i_data(i_data),
-
+  
   .addr_pack_out(addr_pack_out),
   // Выходные данные
-  .o_data(o_data_generate_pack),
-  .o_ready(o_ready)
+  .o_data(o_data_generate_pack)
 );
 
 // Работа для ввода бит
