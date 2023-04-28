@@ -85,15 +85,15 @@ blk_mem_gen_0 pack_2 (
 
 blk_mem_gen_1 blank_pack (
   // BRAB_PORTA
-  .addra(addr_pack_in),
+  .addra(addr_pack_out),
   .clka(i_clk),
   .douta(out_blank_pack),
   .ena(enable_packs)
 );
 
-assign out_pack = (output_pack==2'b00 & out_blank_pack) 
-  | (output_pack==2'b01 & out_pack_1) 
-  | (output_pack==2'b10 & out_pack_2);
+assign o_data = (output_pack===2'b00 & out_blank_pack) 
+  | (output_pack===2'b01 & out_pack_1) 
+  | (output_pack===2'b10 & out_pack_2);
 
 always @(posedge i_clk or posedge i_reset) begin
   // Сброс
