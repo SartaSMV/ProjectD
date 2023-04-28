@@ -8,7 +8,7 @@ module tb_Spread #(
 
 reg i_clk;
 reg i_reset;
-wire o_readi;
+wire o_ready;
 reg i_data;
 reg i_valid;
 wire o_data;
@@ -20,7 +20,7 @@ Spread #(
 tb (
   .i_clk(i_clk),
   .i_reset(i_reset),
-  .o_readi(o_readi),
+  .o_ready(o_ready),
 
   .i_data(i_data),
   .i_valid(i_valid),
@@ -67,11 +67,11 @@ initial begin
   #20;
 
   i_valid <= 0;
-  @(posedge o_readi);
+  @(posedge o_ready);
   i_valid <= 1;
   #10;
-  i_valid <= 0;
-  @(posedge o_readi);
+  i_valid <= 1;
+  @(posedge o_ready);
   #50;
 
   -> terminate_sim;
