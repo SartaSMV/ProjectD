@@ -1,7 +1,7 @@
 `timescale 1ns / 1ps
 
 module tb_Pack #(
-  parameter PERIOD = 10,
+  parameter PERIOD = 20,
   parameter CLK = PERIOD/2,
 
   parameter SIZE_BIT_PACK = 1976,
@@ -59,8 +59,20 @@ end
 
 event terminate_sim;
 initial begin
-	@ (terminate_sim);
+	@(terminate_sim);
 	#5 $finish;
+end
+
+event inpute_pack;
+initial begin
+  @(inpute_pack);
+
+  i_valid_input <= 1'b1;
+  for(int i=0; i<LENGTHE_INPUT_BIT-1; i++) begin
+    i_data <= {2'b1, {SIZE_INPUT_BIT-3{1'b0}}, 1'b1};
+    @(posedge i_clk);
+  end
+  i_valid_input <= 1'b0;
 end
 
 // Начальные условия
@@ -80,15 +92,7 @@ initial begin
   -> reset_trigger;
   @(reset_trigger_done);
 
-  @(posedge i_clk);
-  @(posedge i_clk);
-  for(int i=0; i<40; i++) begin
-    i_ready_output <= 1'b1;
-    @(posedge i_clk);
-    i_ready_output <= 1'b0;
-    @(posedge i_clk);
-    @(posedge i_clk);
-  end
+
 
   -> terminate_sim;
 end

@@ -7,8 +7,7 @@ module memory_pack #(
   parameter LENGTHE_INPUT_BIT = SIZE_BIT_PACK / SIZE_INPUT_BIT,
   parameter LENGTHE_OUTPUT_BIT = SIZE_BIT_PACK / SIZE_OUTPUT_BIT,
   parameter SIZE_ADDR_INPUT = $clog2(LENGTHE_INPUT_BIT),
-  parameter SIZE_ADDR_OUTPUT = $clog2(LENGTHE_OUTPUT_BIT),
-  parameter SISE_PREAMBLE = 32
+  parameter SIZE_ADDR_OUTPUT = $clog2(LENGTHE_OUTPUT_BIT)
 )(
   // Управляющие сигналы
   input i_clk,
