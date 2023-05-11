@@ -73,14 +73,17 @@ always @(posedge i_clk or posedge i_reset) begin
     end
   end
   // Загрузка бита
-  else if(o_ready && i_valid) begin
+  else if(i_valid) begin
     input_data <= i_data;
     o_valid <= 1'b1;
 
     counter <= {SIZE_COUNTER{1'b0}};
     o_ready <= 1'b0;
   end
-  else o_valid <= 1'b0;
+  else begin
+    o_valid <= 1'b0;
+    o_ready <= 1'b0;
+  end
 end
 
 
