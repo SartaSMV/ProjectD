@@ -18,18 +18,20 @@
 proc checkRequiredFiles { origin_dir} {
   set status true
   set files [list \
- "[file normalize "$origin_dir/hdl/memory_pack.sv"]"\
+ "[file normalize "$origin_dir/ip/blk_mem_gen_1/blk_mem_gen_1.xci"]"\
  "[file normalize "$origin_dir/hdl/Pack.sv"]"\
  "[file normalize "$origin_dir/hdl/QPSK.sv"]"\
  "[file normalize "$origin_dir/hdl/Spread.sv"]"\
  "[file normalize "$origin_dir/hdl/lfsr.sv"]"\
  "[file normalize "$origin_dir/hdl/top.sv"]"\
  "[file normalize "$origin_dir/data/init_memory_pack.coe"]"\
+ "[file normalize "$origin_dir/data/init_memory_blank_pack.coe"]"\
  "[file normalize "$origin_dir/ip/blk_mem_gen_0/blk_mem_gen_0.xci"]"\
- "[file normalize "$origin_dir/tb/tb_Pack.sv"]"\
  "[file normalize "$origin_dir/tb/tb_Spread.sv"]"\
+ "[file normalize "$origin_dir/tb/tb_Pack.sv"]"\
  "[file normalize "$origin_dir/tb/tb_QPSK.sv"]"\
  "[file normalize "$origin_dir/tb/tb_lfsr.sv"]"\
+ "[file normalize "$origin_dir/tb/tb_top.sv"]"\
   ]
   foreach ifile $files {
     if { ![file isfile $ifile] } {
@@ -138,15 +140,14 @@ set_property -name "revised_directory_structure" -value "1" -objects $obj
 set_property -name "sim.central_dir" -value "$proj_dir/${_xil_proj_name_}.ip_user_files" -objects $obj
 set_property -name "sim.ip.auto_export_scripts" -value "1" -objects $obj
 set_property -name "simulator_language" -value "Mixed" -objects $obj
-set_property -name "webtalk.activehdl_export_sim" -value "9" -objects $obj
-set_property -name "webtalk.ies_export_sim" -value "9" -objects $obj
-set_property -name "webtalk.modelsim_export_sim" -value "9" -objects $obj
-set_property -name "webtalk.questa_export_sim" -value "9" -objects $obj
-set_property -name "webtalk.riviera_export_sim" -value "9" -objects $obj
-set_property -name "webtalk.vcs_export_sim" -value "9" -objects $obj
-set_property -name "webtalk.xcelium_export_sim" -value "6" -objects $obj
-set_property -name "webtalk.xsim_export_sim" -value "9" -objects $obj
-set_property -name "webtalk.xsim_launch_sim" -value "86" -objects $obj
+set_property -name "webtalk.activehdl_export_sim" -value "18" -objects $obj
+set_property -name "webtalk.ies_export_sim" -value "18" -objects $obj
+set_property -name "webtalk.modelsim_export_sim" -value "18" -objects $obj
+set_property -name "webtalk.questa_export_sim" -value "18" -objects $obj
+set_property -name "webtalk.riviera_export_sim" -value "18" -objects $obj
+set_property -name "webtalk.vcs_export_sim" -value "18" -objects $obj
+set_property -name "webtalk.xsim_export_sim" -value "18" -objects $obj
+set_property -name "webtalk.xsim_launch_sim" -value "192" -objects $obj
 set_property -name "xpm_libraries" -value "XPM_MEMORY" -objects $obj
 
 # Create 'sources_1' fileset (if not found)
@@ -157,21 +158,26 @@ if {[string equal [get_filesets -quiet sources_1] ""]} {
 # Set 'sources_1' fileset object
 set obj [get_filesets sources_1]
 set files [list \
- [file normalize "${origin_dir}/hdl/memory_pack.sv"] \
+ [file normalize "${origin_dir}/ip/blk_mem_gen_1/blk_mem_gen_1.xci"] \
  [file normalize "${origin_dir}/hdl/Pack.sv"] \
  [file normalize "${origin_dir}/hdl/QPSK.sv"] \
  [file normalize "${origin_dir}/hdl/Spread.sv"] \
  [file normalize "${origin_dir}/hdl/lfsr.sv"] \
  [file normalize "${origin_dir}/hdl/top.sv"] \
  [file normalize "${origin_dir}/data/init_memory_pack.coe"] \
+ [file normalize "${origin_dir}/data/init_memory_blank_pack.coe"] \
 ]
 add_files -norecurse -fileset $obj $files
 
 # Set 'sources_1' fileset file properties for remote files
-set file "$origin_dir/hdl/memory_pack.sv"
+set file "$origin_dir/ip/blk_mem_gen_1/blk_mem_gen_1.xci"
 set file [file normalize $file]
 set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
-set_property -name "file_type" -value "SystemVerilog" -objects $file_obj
+set_property -name "generate_files_for_reference" -value "0" -objects $file_obj
+set_property -name "registered_with_manager" -value "1" -objects $file_obj
+if { ![get_property "is_locked" $file_obj] } {
+  set_property -name "synth_checkpoint_mode" -value "Singular" -objects $file_obj
+}
 
 set file "$origin_dir/hdl/Pack.sv"
 set file [file normalize $file]
@@ -204,7 +210,7 @@ set_property -name "file_type" -value "SystemVerilog" -objects $file_obj
 
 # Set 'sources_1' fileset properties
 set obj [get_filesets sources_1]
-set_property -name "top" -value "Pack" -objects $obj
+set_property -name "top" -value "top" -objects $obj
 set_property -name "top_auto_set" -value "0" -objects $obj
 
 # Set 'sources_1' fileset object
@@ -250,20 +256,21 @@ if {[string equal [get_filesets -quiet sim_1] ""]} {
 # Set 'sim_1' fileset object
 set obj [get_filesets sim_1]
 set files [list \
- [file normalize "${origin_dir}/tb/tb_Pack.sv"] \
  [file normalize "${origin_dir}/tb/tb_Spread.sv"] \
+ [file normalize "${origin_dir}/tb/tb_Pack.sv"] \
  [file normalize "${origin_dir}/tb/tb_QPSK.sv"] \
  [file normalize "${origin_dir}/tb/tb_lfsr.sv"] \
+ [file normalize "${origin_dir}/tb/tb_top.sv"] \
 ]
 add_files -norecurse -fileset $obj $files
 
 # Set 'sim_1' fileset file properties for remote files
-set file "$origin_dir/tb/tb_Pack.sv"
+set file "$origin_dir/tb/tb_Spread.sv"
 set file [file normalize $file]
 set file_obj [get_files -of_objects [get_filesets sim_1] [list "*$file"]]
 set_property -name "file_type" -value "SystemVerilog" -objects $file_obj
 
-set file "$origin_dir/tb/tb_Spread.sv"
+set file "$origin_dir/tb/tb_Pack.sv"
 set file [file normalize $file]
 set file_obj [get_files -of_objects [get_filesets sim_1] [list "*$file"]]
 set_property -name "file_type" -value "SystemVerilog" -objects $file_obj
@@ -278,13 +285,18 @@ set file [file normalize $file]
 set file_obj [get_files -of_objects [get_filesets sim_1] [list "*$file"]]
 set_property -name "file_type" -value "SystemVerilog" -objects $file_obj
 
+set file "$origin_dir/tb/tb_top.sv"
+set file [file normalize $file]
+set file_obj [get_files -of_objects [get_filesets sim_1] [list "*$file"]]
+set_property -name "file_type" -value "SystemVerilog" -objects $file_obj
+
 
 # Set 'sim_1' fileset file properties for local files
 # None
 
 # Set 'sim_1' fileset properties
 set obj [get_filesets sim_1]
-set_property -name "top" -value "tb_Pack" -objects $obj
+set_property -name "top" -value "tb_Spread" -objects $obj
 set_property -name "top_auto_set" -value "0" -objects $obj
 set_property -name "top_lib" -value "xil_defaultlib" -objects $obj
 
