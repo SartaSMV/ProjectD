@@ -113,27 +113,24 @@ always @(posedge i_clk or posedge i_reset) begin
   // Заполнение и смена пакета
   else if(i_valid_input && o_ready) begin
     if(is_full_pack) begin
-      /*if(is_empty_pack || output_blank_package) begin
+      if(input_package == output_package) begin
         input_package <= ~input_package;
+        o_ready <= 1;
         addr_pack_in <= ADDR_FIRST_WRITE;
       end
       else begin
-        o_ready <= 1'b0;
-      end*/
-      input_package <= ~input_package;
-      addr_pack_in <= ADDR_FIRST_WRITE;
+        o_ready <= 0;
+      end
     end
     else begin
       addr_pack_in <= addr_pack_in + 1;
     end
   end
   // Начало работы после освобождения пакета
-  else if(is_full_pack) begin
-    if(is_empty_pack || output_blank_package) begin
-      input_package <= ~input_package;
-      addr_pack_in <= ADDR_FIRST_WRITE;
-      o_ready <= 1'b1; 
-    end
+  else if(is_full_pack && input_package == output_package) begin
+    input_package <= ~input_package;
+    addr_pack_in <= ADDR_FIRST_WRITE;
+    o_ready <= 1'b1; 
   end
 end
 
@@ -141,21 +138,28 @@ end
 always @(posedge i_clk or posedge i_reset) begin
   // Сброс
   if(i_reset) begin
-    output_blank_package <= 1'b0;
-    output_package <= 1'b0;
+    output_blank_package <= 1'b1;
+    output_package <= 1'b1;
     addr_pack_out <= {SIZE_ADDR_OUTPUT{1'b0}};
   end
   else if(i_ready_output) begin
     if(is_empty_pack) begin
-      output_package <= ~output_package;
+      if(input_package != output_package && is_full_pack) begin
+        output_package <= ~output_package;
+        output_blank_package <= 1'b0;
+      end
+      else begin
+        output_blank_package <= 1'b1;
+      end
       addr_pack_out <= {SIZE_ADDR_OUTPUT{1'b0}};
     end
     else begin
       addr_pack_out <= addr_pack_out + 1;
     end
+    o_valid <= 1'b1;
   end
   else begin
-
+    o_valid <= 1'b0;
   end
 end
 
