@@ -26,6 +26,8 @@ reg i_valid_input;
 wire [SIZE_OUTPUT_BIT-1:0] o_data;
 wire o_valid;
 
+reg ask;
+
 Pack tb (
   // Управляющие сигналы
   .i_clk(i_clk),
@@ -63,7 +65,9 @@ initial begin
 	#5 $finish;
 end
 
+// Заполнение пакета
 event inpute_pack;
+event inpute_pack_done;
 initial begin
   @(inpute_pack);
 
@@ -73,6 +77,29 @@ initial begin
     @(posedge i_clk);
   end
   i_valid_input <= 1'b0;
+  -> inpute_pack_done;
+end
+
+// Считывание пакета
+event outpute_pack;
+event outpute_pack_done;
+initial begin
+  @(outpute_pack);
+
+  for(int i=0; i<33/*LENGTHE_OUTPUT_BIT-1*/; i++) begin
+    i_ready_output <= 1'b1;
+    @(posedge i_clk);
+    i_ready_output <= 1'b0;
+    @(posedge i_clk);
+  end
+
+  -> outpute_pack_done;
+end
+
+always @(posedge i_clk) begin
+  if(o_valid) begin
+    ask <= o_data;
+  end
 end
 
 // Начальные условия
@@ -92,7 +119,12 @@ initial begin
   -> reset_trigger;
   @(reset_trigger_done);
 
+  @(posedge i_clk);
+  @(posedge i_clk);
+  @(posedge i_clk);
 
+  ->outpute_pack;
+  @outpute_pack_done;
 
   -> terminate_sim;
 end
