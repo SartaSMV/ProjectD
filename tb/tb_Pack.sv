@@ -7,11 +7,12 @@ module tb_Pack #(
   parameter SIZE_BIT_PACK = 1976,
   parameter SIZE_INPUT_BIT = 8,
   parameter SIZE_OUTPUT_BIT = 1,
+  parameter SISE_PREAMBLE = 32,
   parameter LENGTHE_INPUT_BIT = SIZE_BIT_PACK / SIZE_INPUT_BIT,
   parameter LENGTHE_OUTPUT_BIT = SIZE_BIT_PACK / SIZE_OUTPUT_BIT,
   parameter SIZE_ADDR_INPUT = $clog2(LENGTHE_INPUT_BIT),
   parameter SIZE_ADDR_OUTPUT = $clog2(LENGTHE_OUTPUT_BIT),
-  parameter SISE_PREAMBLE = $clog2(32)
+  parameter ADDR_FIRST_WRITE = SISE_PREAMBLE / SIZE_INPUT_BIT
 );
 
 // Управляющие сигналы
@@ -25,8 +26,6 @@ reg i_valid_input;
 // Выходные данные
 wire [SIZE_OUTPUT_BIT-1:0] o_data;
 wire o_valid;
-
-reg ask;
 
 Pack tb (
   // Управляющие сигналы
@@ -65,45 +64,19 @@ initial begin
 	#5 $finish;
 end
 
-// Заполнение пакета
-event inpute_pack;
-event inpute_pack_done;
-initial begin
-  @(inpute_pack);
-
-  i_valid_input <= 1'b1;
-  for(int i=0; i<LENGTHE_INPUT_BIT-1; i++) begin
-    i_data <= {2'b1, {SIZE_INPUT_BIT-3{1'b0}}, 1'b1};
-    @(posedge i_clk);
-  end
-  i_valid_input <= 1'b0;
-  -> inpute_pack_done;
-end
-
-// Считывание пакета
-event outpute_pack;
-event outpute_pack_done;
-initial begin
-  @(outpute_pack);
-
-  for(int i=0; i<33/*LENGTHE_OUTPUT_BIT-1*/; i++) begin
-    i_ready_output <= 1'b1;
-    @(posedge i_clk);
-    i_ready_output <= 1'b0;
-    @(posedge i_clk);
-  end
-
-  -> outpute_pack_done;
-end
-
-always @(posedge i_clk) begin
-  if(o_valid) begin
-    ask <= o_data;
-  end
-end
-
 // Начальные условия
+int fid;
+bit ref_output [0:SIZE_BIT_PACK-1];
+bit module_output [0:SIZE_BIT_PACK-1];
+bit [SIZE_INPUT_BIT-1:0] ref_input [0:SIZE_BIT_PACK/8-1];
 initial begin
+  fid = $fopen("tb_pack.dat", "r");
+  for(int i = 0; i<SIZE_BIT_PACK; i++) begin
+    $fscanf(fid,"%b",ref_output[i]);
+  end
+
+  ref_input = {>>8 {ref_output}};
+
   i_clk <= 0;
   i_reset <= 0;
 
@@ -112,21 +85,60 @@ initial begin
   i_valid_input <= 0;
 end
 
-//Симуляция
+int count = 0;
+always @(posedge i_clk) begin
+  if(o_valid) begin
+    module_output[count] <= o_data;
+    /*if(count == LENGTHE_OUTPUT_BIT-1) begin
+      count <= 0;
+    end
+    else count <= count + 1;*/
+    count <= count + 1;
+  end
+end
+
+// Преамбула
 // 11001111 10000000 10101010 00110001 - CF 80 AA 31
 // 11110011 00000001 01010101 10001100 - F3 01 55 8C
+
+//Симуляция
 initial begin
+  // reset data
   -> reset_trigger;
   @(reset_trigger_done);
 
-  @(posedge i_clk);
+  // write_pack
+  for(int i = ADDR_FIRST_WRITE; i<LENGTHE_INPUT_BIT; i++) begin
+    i_valid_input <= 1'b1;
+    i_data <= ref_input[i];
+    @(posedge i_clk);
+    i_valid_input <= 1'b0;
+    @(posedge i_clk);
+  end
   @(posedge i_clk);
   @(posedge i_clk);
 
-  ->outpute_pack;
-  @outpute_pack_done;
+  // read pack
+  for(int i=0; i<LENGTHE_OUTPUT_BIT; i++) begin
+    i_ready_output <= 1'b1;
+    @(posedge i_clk);
+    i_ready_output <= 1'b0;
+    @(posedge i_clk);
+  end
+  @(posedge i_clk);
+  @(posedge i_clk);
+
+  // compare
+  for(int i=0; i<LENGTHE_OUTPUT_BIT; i++) begin
+    $display("%d modul %b, ref %b", i, module_output[i], ref_output[i]);
+  end
+  $display("modul==ref %b", module_output==ref_output);
 
   -> terminate_sim;
+end
+
+final begin
+  $fclose(fid);
 end
 
 endmodule

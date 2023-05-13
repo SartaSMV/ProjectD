@@ -21,7 +21,7 @@ module Pack #(
   input i_ready_output,
   input i_valid_input,
   // Выходные данные
-  output [SIZE_OUTPUT_BIT-1:0] o_data,
+  output reg [SIZE_OUTPUT_BIT-1:0] o_data,
   output reg o_valid
 );
 
@@ -31,15 +31,13 @@ reg enable_packs;
 // Заполняемый пакет
 reg input_package;
 
-// Выводящийся пакет
-reg output_package;
-
 // Вывод пустого пакета
 reg output_blank_package;
 
 // Регистры для хранения адреса ячейки
 reg [SIZE_ADDR_INPUT-1:0] addr_pack_in;
 reg [SIZE_ADDR_OUTPUT-1:0] addr_pack_out;
+reg [SIZE_ADDR_OUTPUT-1:0] addr_pack_blank;
 
 // Правода для разных пакетов
 wire out_pack_0, out_pack_1, out_blank_pack;
@@ -54,16 +52,17 @@ generate
 endgenerate
 
 // Состояние пакетов ввода и вывода
-wire is_full_pack, is_empty_pack;
-assign is_full_pack = (LENGTHE_INPUT_BIT-1) === addr_pack_in;
-assign is_empty_pack = (LENGTHE_OUTPUT_BIT-1) === addr_pack_out;
+wire is_full_pack, is_empty_pack, is_empty_pack_blank;
+assign is_full_pack = (LENGTHE_INPUT_BIT-1) == addr_pack_in;
+assign is_empty_pack = (LENGTHE_OUTPUT_BIT-1) == addr_pack_out;
+assign is_empty_pack_blank = (LENGTHE_OUTPUT_BIT-1) == addr_pack_blank;
 
 assign write_enable_pack_0 = ~input_package && i_valid_input && o_ready;
 assign write_enable_pack_1 = input_package && i_valid_input && o_ready;
 
-assign o_data = (out_pack_0 && ~output_package && ~output_blank_package)
-  || (out_pack_1 && output_package && ~output_blank_package)
-  || (out_blank_pack && output_blank_package);
+reg data;
+assign data = output_blank_package ? out_blank_pack
+  : (input_package ? out_pack_0 : out_pack_1);
 
 blk_mem_gen_0 pack_1 (
   // BRAB_PORTA
@@ -95,7 +94,7 @@ blk_mem_gen_0 pack_2 (
 
 blk_mem_gen_1 blank_pack (
   // BRAB_PORTA
-  .addra(addr_pack_out),
+  .addra(addr_pack_blank),
   .clka(i_clk),
   .douta(out_blank_pack),
   .ena(enable_packs)
@@ -110,27 +109,24 @@ always @(posedge i_clk or posedge i_reset) begin
     input_package <= 1'b0;
     addr_pack_in <= ADDR_FIRST_WRITE;
   end
-  // Заполнение и смена пакета
+  // Заполнение пакета
   else if(i_valid_input && o_ready) begin
     if(is_full_pack) begin
-      if(input_package == output_package) begin
+      if(is_empty_pack) begin
         input_package <= ~input_package;
-        o_ready <= 1;
         addr_pack_in <= ADDR_FIRST_WRITE;
       end
-      else begin
-        o_ready <= 0;
-      end
+      o_ready <= is_empty_pack;
     end
     else begin
       addr_pack_in <= addr_pack_in + 1;
     end
   end
-  // Начало работы после освобождения пакета
-  else if(is_full_pack && input_package == output_package) begin
+  // Сменна пакета
+  else if(is_full_pack && is_empty_pack && ~o_ready) begin
     input_package <= ~input_package;
     addr_pack_in <= ADDR_FIRST_WRITE;
-    o_ready <= 1'b1; 
+    o_ready <= 1'b1;
   end
 end
 
@@ -138,28 +134,40 @@ end
 always @(posedge i_clk or posedge i_reset) begin
   // Сброс
   if(i_reset) begin
-    output_blank_package <= 1'b1;
-    output_package <= 1'b1;
-    addr_pack_out <= {SIZE_ADDR_OUTPUT{1'b0}};
+    output_blank_package <= 1'b0;
+    addr_pack_out <= LENGTHE_OUTPUT_BIT-1;
+    addr_pack_blank <= {SIZE_ADDR_OUTPUT{1'b0}};
   end
   else if(i_ready_output) begin
-    if(is_empty_pack) begin
-      if(input_package != output_package && is_full_pack) begin
-        output_package <= ~output_package;
-        output_blank_package <= 1'b0;
+    // Откуда ввыводиться буфер или холостой ход
+    if(output_blank_package) begin
+      // При выводи пакета холостого хода
+      if(is_empty_pack_blank) begin
+        output_blank_package <= is_empty_pack;
+        addr_pack_blank <= {SIZE_ADDR_OUTPUT{1'b0}};
       end
       else begin
-        output_blank_package <= 1'b1;
+        addr_pack_blank <= addr_pack_blank + 1;
       end
-      addr_pack_out <= {SIZE_ADDR_OUTPUT{1'b0}};
     end
     else begin
-      addr_pack_out <= addr_pack_out + 1;
+      // При выводе из пакета
+      if(is_empty_pack) begin
+        output_blank_package <= is_empty_pack;
+      end
+      else begin
+        addr_pack_out <= addr_pack_out + 1;
+      end
     end
-    o_valid <= 1'b1;
+    o_valid <= 1;
+    o_data <= data;
   end
   else begin
     o_valid <= 1'b0;
+  end
+
+  if(is_full_pack && is_empty_pack && (~o_ready || i_valid_input)) begin
+    addr_pack_out <= {SIZE_ADDR_OUTPUT{1'b0}};
   end
 end
 
