@@ -21,11 +21,11 @@ module Spread #(
   // Управляющие сигналы
   input i_clk,
   input i_reset,
-  output reg o_ready,
-  // Входные данные
+  // Сигналы для входа
   input i_data,
   input i_valid,
-  // Выходные данные
+  output reg o_ready,
+  // Сигналы для вывода
   output o_data,
   output reg o_valid
 );
@@ -59,6 +59,7 @@ always @(posedge i_clk or posedge i_reset) begin
     spread_counter <= {SIZE_COUNTER{1'b0}};
     i_lfsr_valid <= 1'b1;
   end
+  // Генерируем LFSR
   else if(i_lfsr_valid) begin
     if(spread_counter == SPREAD - 1) begin 
       i_lfsr_valid <= 1'b0;
@@ -78,9 +79,12 @@ always @(posedge i_clk or posedge i_reset) begin
     input_data <= 1'b0;
     lfsr_ready <= 1'b0;
   end
+  // LFSR згенерировано
   else if (lfsr_ready) begin
+    // Расширяем бит
     if(o_valid) begin
       if(counter == SPREAD - 1) begin
+        // Считываем новый бит
         if(i_valid) begin
           input_data <= i_data;
           counter <= {SIZE_COUNTER{1'b0}};
@@ -89,26 +93,31 @@ always @(posedge i_clk or posedge i_reset) begin
         o_valid <= i_valid;
       end
       else begin
+        //увеличения счетчика
         counter <= counter + 1;
+        // Подача сигнала заранее, чтобы расширять непрерывно
         if(counter == SPREAD - 3) begin
           o_ready <= 1'b1;
         end
         else begin
-          o_ready <= 0;
+          o_ready <= 1'b0;
         end
       end
     end
+    // Ждем валидных данных
     else if(i_valid) begin
       input_data <= i_data;
+      counter <= {SIZE_COUNTER{1'b0}};
       o_ready <= 1'b0;
       o_valid <= 1'b1;
-      counter <= {SIZE_COUNTER{1'b0}};
     end
+    // Сброс готовности и валидности
     else begin
       o_valid <= 1'b0;
-      o_ready <= 0;
+      o_ready <= 1'b0;
     end
   end
+  // Включения расширения спектра
   else if(~i_lfsr_valid) begin
     lfsr_ready <= 1'b1;
     o_ready <= 1'b1;
