@@ -60,19 +60,28 @@ initial begin
   i_data <= 0;
 end
 
+always @(posedge i_clk) begin
+  if(i_reset) begin
+    i_valid <= 0;
+  end
+  else if(o_ready) begin
+    i_valid <= 1;
+  end
+  else begin
+    i_valid <= 0;
+  end
+end
+
 //Симуляция
 initial begin
   -> reset_trigger;
   @(reset_trigger_done);
+
   #20;
 
-  i_valid <= 0;
   @(posedge o_ready);
-  i_valid <= 1;
-  #10;
-  i_valid <= 1;
   @(posedge o_ready);
-  #50;
+  @(posedge o_ready);
 
   -> terminate_sim;
 end

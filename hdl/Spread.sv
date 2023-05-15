@@ -38,6 +38,8 @@ reg input_data;
 // Вспомогательные регистры для ПСП
 wire o_lfsr_data;
 reg i_lfsr_valid;
+reg [SIZE_COUNTER-1:0] spread_counter;
+reg lfsr_ready;
 
 // ПСП
 lfsr lfsr (
@@ -53,36 +55,63 @@ assign o_data = spreading_code[counter] ^ input_data;
 always @(posedge i_clk or posedge i_reset) begin
   // Сброс
   if (i_reset) begin
-    o_ready <= 1'b0;
-    o_valid <= 1'b0;
-
     spreading_code <= {SPREAD{1'b0}};
-    counter <= {SIZE_COUNTER{1'b0}};
-    input_data <= 1'b0;
+    spread_counter <= {SIZE_COUNTER{1'b0}};
     i_lfsr_valid <= 1'b1;
   end
-  else if(i_lfsr_valid || o_valid) begin
-    if(counter == SPREAD - 1) begin 
+  else if(i_lfsr_valid) begin
+    if(spread_counter == SPREAD - 1) begin 
       i_lfsr_valid <= 1'b0;
-      o_ready <= 1'b1;
-      o_valid <= 1'b0;
     end
-    else begin
-      if(i_lfsr_valid) spreading_code[counter] <= o_lfsr_data;
-      counter <= counter + 1;
-    end
+    spreading_code[spread_counter] <= o_lfsr_data;
+    spread_counter <= spread_counter + 1;
   end
-  // Загрузка бита
-  else if(i_valid) begin
-    input_data <= i_data;
-    o_valid <= 1'b1;
+end
+
+always @(posedge i_clk or posedge i_reset) begin
+  // Сброс
+  if (i_reset) begin
+    o_ready <= 1'b0;
+    o_valid <= 1'b0;
 
     counter <= {SIZE_COUNTER{1'b0}};
-    o_ready <= 1'b0;
+    input_data <= 1'b0;
+    lfsr_ready <= 1'b0;
   end
-  else begin
-    o_valid <= 1'b0;
-    o_ready <= 1'b0;
+  else if (lfsr_ready) begin
+    if(o_valid) begin
+      if(counter == SPREAD - 1) begin
+        if(i_valid) begin
+          input_data <= i_data;
+          counter <= {SIZE_COUNTER{1'b0}};
+          o_ready <= 1'b0;
+        end
+        o_valid <= i_valid;
+      end
+      else begin
+        counter <= counter + 1;
+        if(counter == SPREAD - 3) begin
+          o_ready <= 1'b1;
+        end
+        else begin
+          o_ready <= 0;
+        end
+      end
+    end
+    else if(i_valid) begin
+      input_data <= i_data;
+      o_ready <= 1'b0;
+      o_valid <= 1'b1;
+      counter <= {SIZE_COUNTER{1'b0}};
+    end
+    else begin
+      o_valid <= 1'b0;
+      o_ready <= 0;
+    end
+  end
+  else if(~i_lfsr_valid) begin
+    lfsr_ready <= 1'b1;
+    o_ready <= 1'b1;
   end
 end
 
