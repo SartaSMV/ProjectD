@@ -59,7 +59,7 @@ assign is_empty_pack_blank = (LENGTHE_OUTPUT_BIT-1) == addr_pack_blank;
 assign write_enable_pack_0 = ~input_package && i_valid_input && o_ready;
 assign write_enable_pack_1 = input_package && i_valid_input && o_ready;
 
-reg data;
+wire data;
 assign data = output_blank_package ? out_blank_pack
   : (input_package ? out_pack_0 : out_pack_1);
 
