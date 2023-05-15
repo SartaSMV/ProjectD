@@ -6,14 +6,14 @@ module top #(
   parameter SIZE_OUTPUT_BIT = 32
 )(
   // Управляющие сигналы
-  input clk,
-  input reset,
-  output ready,
+  input i_clk,
+  input i_reset,
   // Входные данные
-  input [SIZE_INPUT_BIT-1:0] bits,
+  input [SIZE_INPUT_BIT-1:0] o_bits,
   input i_valid_input,
+  output ready,
   // Выходные данные
-  output [SIZE_OUTPUT_BIT-1:0] data,
+  output [SIZE_OUTPUT_BIT*2-1:0] o_data,
   output o_valid_output
 );
 
@@ -30,13 +30,16 @@ wire o_ready_spread;
 wire [SIZE_OUTPUT_BIT-1:0] o_data_fir_filter;
 wire o_valid_fir_filter;
 
+// Передача данных с фильтра
+wire s_axis_data_tready;
+
 Pack Pack (
   // Управляющие сигналы
-  .i_clk(clk),
-  .i_reset(reset),
+  .i_clk(i_clk),
+  .i_reset(i_reset),
   .o_ready(ready),
   // Входные данные
-  .i_data(bits),
+  .i_data(o_bits),
   .i_ready_output(o_ready_spread),
   .i_valid_input(i_valid_input),
   // Выходные данные
@@ -49,8 +52,8 @@ Spread #(
 )
 Spread (
   // Управляющие сигналы
-  .i_clk(clk),
-  .i_reset(reset),
+  .i_clk(i_clk),
+  .i_reset(i_reset),
   .o_ready(o_ready_spread),
   // Входные данные
   .i_data(o_data_pack),
@@ -62,8 +65,8 @@ Spread (
 
 QPSK QPSK (
   // Управляющие сигналы
-  .i_clk(clk),
-  .i_reset(reset),
+  .i_clk(i_clk),
+  .i_reset(i_reset),
   // Входные данные
   .i_data(o_data_spread),
   .i_valid(o_valid_spread),
@@ -72,16 +75,13 @@ QPSK QPSK (
   .o_valid(o_valid_fir_filter)
 );
 
-fir_filter your_instance_name (
-  .aclk(aclk),                              // input wire aclk
-  .s_axis_data_tvalid(s_axis_data_tvalid),  // input wire s_axis_data_tvalid
-  .s_axis_data_tready(s_axis_data_tready),  // output wire s_axis_data_tready
-  .s_axis_data_tdata(s_axis_data_tdata),    // input wire [31 : 0] s_axis_data_tdata
-  .m_axis_data_tvalid(m_axis_data_tvalid),  // output wire m_axis_data_tvalid
-  .m_axis_data_tdata(m_axis_data_tdata)    // output wire [63 : 0] m_axis_data_tdata
+fir_compiler_0 fir_filter (
+  .aclk(i_clk),
+  .s_axis_data_tvalid(o_valid_fir_filter),
+  .s_axis_data_tready(),
+  .s_axis_data_tdata(o_data_fir_filter),
+  .m_axis_data_tvalid(o_valid_output),
+  .m_axis_data_tdata(o_data)
 );
-
-assign data = o_data_fir_filter;
-assign o_valid_output = o_valid_fir_filter;
 
 endmodule

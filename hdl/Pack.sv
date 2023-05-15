@@ -56,9 +56,11 @@ reg is_full_pack, is_empty_pack;
 wire is_empty_pack_blank;
 assign is_empty_pack_blank = (LENGTHE_OUTPUT_BIT-1) == addr_pack_blank;
 
+// Включение ввода битов
 assign write_enable_pack_0 = ~input_package && i_valid_input && o_ready;
 assign write_enable_pack_1 = input_package && i_valid_input && o_ready;
 
+// Вывод бита с нужного пакета
 wire data;
 assign data = output_blank_package ? out_blank_pack
   : (input_package ? out_pack_0 : out_pack_1);
@@ -104,8 +106,10 @@ always @(posedge i_clk or posedge i_reset) begin
   // Сброс
   if(i_reset) begin
     enable_packs <= 1'b1;
-    o_ready <= 1'b1;
+
     input_package <= 1'b0;
+    o_ready <= 1'b1;
+
     addr_pack_in <= ADDR_FIRST_WRITE;
     is_full_pack <= (LENGTHE_INPUT_BIT-1) == addr_pack_in;
   end
@@ -119,10 +123,12 @@ always @(posedge i_clk or posedge i_reset) begin
     end
     is_full_pack <= (LENGTHE_INPUT_BIT-1) == addr_pack_in;
   end
+
   // Сменна пакета
   if(is_full_pack && is_empty_pack) begin
     input_package <= ~input_package;
     addr_pack_in <= ADDR_FIRST_WRITE;
+    is_full_pack <= 1'b0;
     o_ready <= 1'b1;
   end
 end
@@ -131,25 +137,28 @@ end
 always @(posedge i_clk or posedge i_reset) begin
   // Сброс
   if(i_reset) begin
-    output_blank_package <= 1'b1;
-    addr_pack_out <= LENGTHE_OUTPUT_BIT-1;
-    addr_pack_blank <= {SIZE_ADDR_OUTPUT{1'b0}};
     is_empty_pack <= 1'b1;
+    addr_pack_out <= LENGTHE_OUTPUT_BIT-1;
+
+    output_blank_package <= 1'b1;
+    addr_pack_blank <= {SIZE_ADDR_OUTPUT{1'b0}};
   end
+  // Вывод бита
   else if(i_ready_output) begin
-    // Откуда ввыводиться буфер или холостой ход
+    // При выводи пакета холостого хода
     if(output_blank_package) begin
-      // При выводи пакета холостого хода
       if(is_empty_pack_blank) begin
         output_blank_package <= is_empty_pack;
         addr_pack_blank <= {SIZE_ADDR_OUTPUT{1'b0}};
       end
+      // Увеличение счетчика
       if(addr_pack_blank < (LENGTHE_OUTPUT_BIT-1)) begin
         addr_pack_blank <= addr_pack_blank + 1;
       end
     end
+    // При выводе из пакета
     else begin
-      // При выводе из пакета
+      // Увеличение счетчика
       if(addr_pack_out < (LENGTHE_OUTPUT_BIT-1)) begin
         addr_pack_out <= addr_pack_out + 1;
       end
@@ -165,6 +174,7 @@ always @(posedge i_clk or posedge i_reset) begin
     o_valid <= 1'b0;
   end
 
+  // Смена пакета
   if(is_full_pack && is_empty_pack) begin
     if(addr_pack_blank == {SIZE_ADDR_OUTPUT{1'b0}} && ~i_ready_output) begin
       output_blank_package <= 1'b0;
