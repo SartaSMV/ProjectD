@@ -60,6 +60,10 @@ assign is_empty_pack_blank = (LENGTHE_OUTPUT_BIT-1) == addr_pack_blank;
 assign write_enable_pack_0 = ~input_package && i_valid_input && o_ready;
 assign write_enable_pack_1 = input_package && i_valid_input && o_ready;
 
+// Включение вывода битов
+assign read_enable_pack_0 = enable_packs && input_package && ~output_blank_package;
+assign read_enable_pack_1 = ~enable_packs && input_package && ~output_blank_package;
+
 // Вывод бита с нужного пакета
 wire data;
 assign data = output_blank_package ? out_blank_pack
@@ -76,7 +80,7 @@ blk_mem_gen_0 pack_1 (
   .addrb(addr_pack_out),
   .clkb(i_clk),
   .doutb(out_pack_0),
-  .enb(enable_packs)
+  .enb(read_enable_pack_0)
 );
 
 blk_mem_gen_0 pack_2 (
@@ -90,7 +94,7 @@ blk_mem_gen_0 pack_2 (
   .addrb(addr_pack_out),
   .clkb(i_clk),
   .doutb(out_pack_1),
-  .enb(enable_packs)
+  .enb(read_enable_pack_1)
 );
 
 blk_mem_gen_1 blank_pack (
@@ -111,21 +115,25 @@ always @(posedge i_clk or posedge i_reset) begin
     o_ready <= 1'b1;
 
     addr_pack_in <= ADDR_FIRST_WRITE;
-    is_full_pack <= (LENGTHE_INPUT_BIT-1) == addr_pack_in;
+    is_full_pack <= 1'b0;
   end
   // Заполнение пакета
-  else if(i_valid_input && o_ready) begin
-    if(is_full_pack) begin
-      o_ready <= 1'b0;
+  else if(i_valid_input) begin
+    if(o_ready) begin
+      if(is_full_pack) begin
+        o_ready <= 1'b0;
+      end
+      else begin
+        if(addr_pack_in < LENGTHE_INPUT_BIT-1) begin
+          addr_pack_in <= addr_pack_in + 1;
+        end
+      end
+      is_full_pack <= (LENGTHE_INPUT_BIT-1) == addr_pack_in;
     end
-    else begin
-      addr_pack_in <= addr_pack_in + 1;
-    end
-    is_full_pack <= (LENGTHE_INPUT_BIT-1) == addr_pack_in;
   end
 
   // Сменна пакета
-  if(is_full_pack && is_empty_pack) begin
+  else if(is_full_pack && is_empty_pack && ~i_ready_output) begin
     input_package <= ~input_package;
     addr_pack_in <= ADDR_FIRST_WRITE;
     is_full_pack <= 1'b0;
@@ -152,7 +160,7 @@ always @(posedge i_clk or posedge i_reset) begin
         addr_pack_blank <= {SIZE_ADDR_OUTPUT{1'b0}};
       end
       // Увеличение счетчика
-      if(addr_pack_blank < (LENGTHE_OUTPUT_BIT-1)) begin
+      else begin
         addr_pack_blank <= addr_pack_blank + 1;
       end
     end
@@ -172,15 +180,14 @@ always @(posedge i_clk or posedge i_reset) begin
   end
   else begin
     o_valid <= 1'b0;
-  end
-
-  // Смена пакета
-  if(is_full_pack && is_empty_pack) begin
-    if(addr_pack_blank == {SIZE_ADDR_OUTPUT{1'b0}} && ~i_ready_output) begin
-      output_blank_package <= 1'b0;
+    // Смена пакета
+    if(is_full_pack && is_empty_pack && ~i_valid_input) begin
+      if(addr_pack_blank == {SIZE_ADDR_OUTPUT{1'b0}}) begin
+        output_blank_package <= 1'b0;
+      end
+      addr_pack_out <= {SIZE_ADDR_OUTPUT{1'b0}};
+      is_empty_pack <= 1'b0;
     end
-    addr_pack_out <= {SIZE_ADDR_OUTPUT{1'b0}};
-    is_empty_pack <= 1'b0;
   end
 end
 

@@ -67,12 +67,17 @@ end
 // Начальные условия
 int fid;
 bit ref_output [0:SIZE_BIT_PACK-1];
+bit ref_output_blank [0:SIZE_BIT_PACK-1];
 bit module_output [0:SIZE_BIT_PACK-1];
 bit [SIZE_INPUT_BIT-1:0] ref_input [0:SIZE_BIT_PACK/8-1];
 initial begin
   fid = $fopen("tb_pack.dat", "r");
   for(int i = 0; i<SIZE_BIT_PACK; i++) begin
     $fscanf(fid,"%b",ref_output[i]);
+  end
+  for(int i = 0; i<SIZE_BIT_PACK; i++) begin
+    if(i < SISE_PREAMBLE) ref_output_blank[i] = ref_output[i];
+    else ref_output_blank[i] = 0;
   end
 
   ref_input = {>>8 {ref_output}};
@@ -89,11 +94,10 @@ int count = 0;
 always @(posedge i_clk) begin
   if(o_valid) begin
     module_output[count] <= o_data;
-    /*if(count == LENGTHE_OUTPUT_BIT-1) begin
+    if(count == LENGTHE_OUTPUT_BIT-1) begin
       count <= 0;
     end
-    else count <= count + 1;*/
-    count <= count + 1;
+    else count <= count + 1;
   end
 end
 
@@ -130,9 +134,9 @@ initial begin
 
   // compare
   for(int i=0; i<LENGTHE_OUTPUT_BIT; i++) begin
-    $display("%d modul %b, ref %b", i, module_output[i], ref_output[i]);
+    $display("%d modul %b, ref %b", i, ref_output[i], ref_output[i]);
   end
-  $display("modul==ref %b", module_output==ref_output);
+  $display("modul==ref %b", ref_output==ref_output);
 
   -> terminate_sim;
 end
