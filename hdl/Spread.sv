@@ -41,7 +41,7 @@ reg i_lfsr_valid;
 reg [SIZE_COUNTER-1:0] spread_counter;
 reg lfsr_ready;
 
-// ПСП
+// Генератор ПСП
 lfsr lfsr (
   .i_clk(i_clk),
   .i_reset(i_reset),
@@ -52,6 +52,7 @@ lfsr lfsr (
 
 assign o_data = spreading_code[counter] ^ input_data;
 
+// Генерация ПСП
 always @(posedge i_clk or posedge i_reset) begin
   // Сброс
   if (i_reset) begin
@@ -59,7 +60,7 @@ always @(posedge i_clk or posedge i_reset) begin
     spread_counter <= {SIZE_COUNTER{1'b0}};
     i_lfsr_valid <= 1'b1;
   end
-  // Генерируем LFSR
+  // Генерируем ПСП
   else if(i_lfsr_valid) begin
     if(spread_counter == SPREAD - 1) begin 
       i_lfsr_valid <= 1'b0;
@@ -69,6 +70,7 @@ always @(posedge i_clk or posedge i_reset) begin
   end
 end
 
+// Генерация расширенного бита
 always @(posedge i_clk or posedge i_reset) begin
   // Сброс
   if (i_reset) begin
@@ -79,7 +81,7 @@ always @(posedge i_clk or posedge i_reset) begin
     input_data <= 1'b0;
     lfsr_ready <= 1'b0;
   end
-  // LFSR згенерировано
+  // ПСП сгенерировано
   else if (lfsr_ready) begin
     // Расширяем бит
     if(o_valid) begin

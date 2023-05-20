@@ -33,14 +33,16 @@ ONE_ZERO = {16'd23169, -16'd23169},
 ONE_ONE = {-16'd23169, -16'd23169};
 
 always @(posedge i_clk or posedge i_reset) begin
+  // Сброс
   if(i_reset) begin
     count <= 1'b0;
     o_valid <= 1'b0;
     o_data <= {32{1'b0}};
   end
+  // При валидных входных данных
   else if(i_valid) begin
     if(count == 1'b1) begin
-
+      // Модуляция при накоплениии 2 бит
       case ({i_data, data})
         2'b00: o_data <= ZERO_ZERO;
         2'b01: o_data <= ZERO_ONE;
@@ -56,6 +58,7 @@ always @(posedge i_clk or posedge i_reset) begin
     end
     count <= count + 1;
   end
+  // Сброс валидности
   else begin
     o_valid <= 1'b0;
   end

@@ -17,71 +17,17 @@ module top #(
   output o_valid_output
 );
 
-// Передача данных из пакета
-wire o_data_pack;
-wire o_valid_pack;
-
-// Передача расширенного сигнала
-wire o_data_spread;
-wire o_valid_spread;
-wire o_ready_spread;
-
-// Передача сформированного знака
-wire [SIZE_OUTPUT_BIT-1:0] o_data_fir_filter;
-wire o_valid_fir_filter;
-
-// Передача данных с фильтра
-wire s_axis_data_tready;
-
-Pack Pack (
+Modulator Modulator (
   // Управляющие сигналы
-  .i_clk(i_clk),
-  .i_reset(i_reset),
-  .o_ready(ready),
+  .i_clk(),
+  .i_reset(),
   // Входные данные
-  .i_data(o_bits),
-  .i_ready_output(o_ready_spread),
-  .i_valid_input(i_valid_input),
+  .i_data(),
+  .i_valid_input(),
+  .o_ready(),
   // Выходные данные
-  .o_data(o_data_pack),
-  .o_valid(o_valid_pack)
-);
-
-Spread #(
-  .SPREAD(24)
-)
-Spread (
-  // Управляющие сигналы
-  .i_clk(i_clk),
-  .i_reset(i_reset),
-  .o_ready(o_ready_spread),
-  // Входные данные
-  .i_data(o_data_pack),
-  .i_valid(o_valid_pack),
-  // Выходные данные
-  .o_data(o_data_spread),
-  .o_valid(o_valid_spread)
-);
-
-QPSK QPSK (
-  // Управляющие сигналы
-  .i_clk(i_clk),
-  .i_reset(i_reset),
-  // Входные данные
-  .i_data(o_data_spread),
-  .i_valid(o_valid_spread),
-  // Выходные данные
-  .o_data(o_data_fir_filter),
-  .o_valid(o_valid_fir_filter)
-);
-
-fir_compiler_0 fir_filter (
-  .aclk(i_clk),
-  .s_axis_data_tvalid(o_valid_fir_filter),
-  .s_axis_data_tready(),
-  .s_axis_data_tdata(o_data_fir_filter),
-  .m_axis_data_tvalid(o_valid_output),
-  .m_axis_data_tdata(o_data)
+  .o_data(),
+  .o_valid_output()
 );
 
 endmodule
