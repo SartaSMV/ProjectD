@@ -18,11 +18,11 @@
 proc checkRequiredFiles { origin_dir} {
   set status true
   set files [list \
+ "[file normalize "$origin_dir/hdl/lfsr.sv"]"\
+ "[file normalize "$origin_dir/hdl/Spread.sv"]"\
+ "[file normalize "$origin_dir/hdl/Modulator.sv"]"\
  "[file normalize "$origin_dir/hdl/Pack.sv"]"\
  "[file normalize "$origin_dir/hdl/QPSK.sv"]"\
- "[file normalize "$origin_dir/hdl/Spread.sv"]"\
- "[file normalize "$origin_dir/hdl/lfsr.sv"]"\
- "[file normalize "$origin_dir/hdl/Modulator.sv"]"\
  "[file normalize "$origin_dir/hdl/top.sv"]"\
  "[file normalize "$origin_dir/data/init_memory_pack.coe"]"\
  "[file normalize "$origin_dir/data/init_memory_blank_pack.coe"]"\
@@ -152,7 +152,6 @@ set_property -name "webtalk.riviera_export_sim" -value "22" -objects $obj
 set_property -name "webtalk.vcs_export_sim" -value "22" -objects $obj
 set_property -name "webtalk.xsim_export_sim" -value "22" -objects $obj
 set_property -name "webtalk.xsim_launch_sim" -value "394" -objects $obj
-set_property -name "xpm_libraries" -value "XPM_MEMORY" -objects $obj
 
 # Create 'sources_1' fileset (if not found)
 if {[string equal [get_filesets -quiet sources_1] ""]} {
@@ -162,11 +161,11 @@ if {[string equal [get_filesets -quiet sources_1] ""]} {
 # Set 'sources_1' fileset object
 set obj [get_filesets sources_1]
 set files [list \
+ [file normalize "${origin_dir}/hdl/lfsr.sv"] \
+ [file normalize "${origin_dir}/hdl/Spread.sv"] \
+ [file normalize "${origin_dir}/hdl/Modulator.sv"] \
  [file normalize "${origin_dir}/hdl/Pack.sv"] \
  [file normalize "${origin_dir}/hdl/QPSK.sv"] \
- [file normalize "${origin_dir}/hdl/Spread.sv"] \
- [file normalize "${origin_dir}/hdl/lfsr.sv"] \
- [file normalize "${origin_dir}/hdl/Modulator.sv"] \
  [file normalize "${origin_dir}/hdl/top.sv"] \
  [file normalize "${origin_dir}/data/init_memory_pack.coe"] \
  [file normalize "${origin_dir}/data/init_memory_blank_pack.coe"] \
@@ -175,12 +174,7 @@ set files [list \
 add_files -norecurse -fileset $obj $files
 
 # Set 'sources_1' fileset file properties for remote files
-set file "$origin_dir/hdl/Pack.sv"
-set file [file normalize $file]
-set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
-set_property -name "file_type" -value "SystemVerilog" -objects $file_obj
-
-set file "$origin_dir/hdl/QPSK.sv"
+set file "$origin_dir/hdl/lfsr.sv"
 set file [file normalize $file]
 set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
 set_property -name "file_type" -value "SystemVerilog" -objects $file_obj
@@ -190,12 +184,17 @@ set file [file normalize $file]
 set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
 set_property -name "file_type" -value "SystemVerilog" -objects $file_obj
 
-set file "$origin_dir/hdl/lfsr.sv"
+set file "$origin_dir/hdl/Modulator.sv"
 set file [file normalize $file]
 set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
 set_property -name "file_type" -value "SystemVerilog" -objects $file_obj
 
-set file "$origin_dir/hdl/Modulator.sv"
+set file "$origin_dir/hdl/Pack.sv"
+set file [file normalize $file]
+set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
+set_property -name "file_type" -value "SystemVerilog" -objects $file_obj
+
+set file "$origin_dir/hdl/QPSK.sv"
 set file [file normalize $file]
 set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
 set_property -name "file_type" -value "SystemVerilog" -objects $file_obj
@@ -211,7 +210,7 @@ set_property -name "file_type" -value "SystemVerilog" -objects $file_obj
 
 # Set 'sources_1' fileset properties
 set obj [get_filesets sources_1]
-set_property -name "top" -value "Modulator" -objects $obj
+set_property -name "top" -value "Spread" -objects $obj
 set_property -name "top_auto_set" -value "0" -objects $obj
 
 # Set 'sources_1' fileset object

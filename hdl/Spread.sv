@@ -26,6 +26,7 @@ module Spread #(
   input i_valid,
   output reg o_ready,
   // Сигналы для вывода
+  input i_enable,
   output o_data,
   output reg o_valid
 );
@@ -86,19 +87,23 @@ always @(posedge i_clk or posedge i_reset) begin
     // Расширяем бит
     if(o_valid) begin
       if(counter == SPREAD - 1) begin
-        // Считываем новый бит
-        if(i_valid) begin
-          input_data <= i_data;
-          counter <= {SIZE_COUNTER{1'b0}};
-          o_ready <= 1'b0;
+        // Ждем воз
+        if(~i_enable) begin
+          lfsr_ready <= 1'b0;
         end
+        // Считываем новый бит
+        else if(i_valid) begin
+          input_data <= i_data;
+        end
+        o_ready <= 1'b0;
+        counter <= {SIZE_COUNTER{1'b0}};
         o_valid <= i_valid;
       end
       else begin
         //увеличения счетчика
         counter <= counter + 1;
         // Подача сигнала заранее, чтобы расширять непрерывно
-        if(counter == SPREAD - 3) begin
+        if(counter == SPREAD - 3 && i_enable) begin
           o_ready <= 1'b1;
         end
         else begin
@@ -121,8 +126,8 @@ always @(posedge i_clk or posedge i_reset) begin
   end
   // Включения расширения спектра
   else if(~i_lfsr_valid) begin
-    lfsr_ready <= 1'b1;
-    o_ready <= 1'b1;
+    lfsr_ready <= i_enable;
+    o_ready <= i_enable;
   end
 end
 
