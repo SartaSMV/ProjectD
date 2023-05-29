@@ -36,6 +36,12 @@ wire o_valid_pack;
 wire o_data_spread;
 wire o_valid_spread;
 wire o_ready_spread;
+wire i_enable_spread;
+
+wire prog_full_fifo;
+wire i_rd_en_fifo;
+wire valid_fifo;
+wire o_data_fifo;
 
 // Передача сформированного знака
 wire [SIZE_OUTPUT_BIT-1:0] o_data_fir_filter;
@@ -43,6 +49,8 @@ wire o_valid_fir_filter;
 
 // Передача данных с фильтра
 wire s_axis_data_tready;
+
+assign i_enable_spread = ~prog_full_fifo;
 
 Pack Pack (
   // Управляющие сигналы
@@ -70,11 +78,34 @@ Spread (
   .i_data(o_data_pack),
   .i_valid(o_valid_pack),
   // Выходные данные
+  .i_enable(i_enable_spread),
   .o_data(o_data_spread),
   .o_valid(o_valid_spread)
 );
 
-QPSK QPSK (
+Divider_clk #(
+  .DIVIDER(240)
+)
+Divider_clk (
+  .i_clk(i_clk),
+  .i_reset(i_reset),
+  .o_clk(i_rd_en_fifo)
+);
+
+fifo_generator_0 tb_fifo_generator (
+  .clk(i_clk),
+  .srst(i_reset),
+  .din(o_data_spread),
+  .wr_en(o_valid_spread),
+  .rd_en(i_rd_en_fifo),
+  .dout(o_data_fifo),
+  .full(),
+  .empty(),
+  .valid(valid_fifo),
+  .prog_full(prog_full_fifo)
+);
+
+/*QPSK QPSK (
   // Управляющие сигналы
   .i_clk(i_clk),
   .i_reset(i_reset),
@@ -93,6 +124,6 @@ fir_compiler_0 fir_filter (
   .s_axis_data_tdata(o_data_fir_filter),
   .m_axis_data_tvalid(o_valid_output),
   .m_axis_data_tdata(o_data)
-);
+);*/
 
 endmodule
