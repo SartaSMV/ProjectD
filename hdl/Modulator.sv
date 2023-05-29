@@ -24,7 +24,7 @@ module Modulator #(
   input i_valid_input,
   output o_ready,
   // Выходные данные
-  output [SIZE_OUTPUT_BIT*2-1:0] o_data,
+  output [0:0] o_data,
   output o_valid_output
 );
 
@@ -38,6 +38,7 @@ wire o_valid_spread;
 wire o_ready_spread;
 wire i_enable_spread;
 
+// Работа fifo для соблюдения частоты
 wire prog_full_fifo;
 wire i_rd_en_fifo;
 wire valid_fifo;
@@ -104,6 +105,9 @@ fifo_generator_0 tb_fifo_generator (
   .valid(valid_fifo),
   .prog_full(prog_full_fifo)
 );
+
+assign o_data = o_data_fifo;
+assign o_valid_output = valid_fifo;
 
 /*QPSK QPSK (
   // Управляющие сигналы
