@@ -24,7 +24,7 @@ module Modulator #(
   input i_valid_input,
   output o_ready,
   // Выходные данные
-  output [0:0] o_data,
+  output [SIZE_OUTPUT_BIT*2-1:0] o_data,
   output o_valid_output
 );
 
@@ -106,16 +106,13 @@ fifo_generator_0 tb_fifo_generator (
   .prog_full(prog_full_fifo)
 );
 
-assign o_data = o_data_fifo;
-assign o_valid_output = valid_fifo;
-
-/*QPSK QPSK (
+QPSK QPSK (
   // Управляющие сигналы
   .i_clk(i_clk),
   .i_reset(i_reset),
   // Входные данные
-  .i_data(o_data_spread),
-  .i_valid(o_valid_spread),
+  .i_data(o_data_fifo),
+  .i_valid(valid_fifo),
   // Выходные данные
   .o_data(o_data_fir_filter),
   .o_valid(o_valid_fir_filter)
@@ -128,6 +125,6 @@ fir_compiler_0 fir_filter (
   .s_axis_data_tdata(o_data_fir_filter),
   .m_axis_data_tvalid(o_valid_output),
   .m_axis_data_tdata(o_data)
-);*/
+);
 
 endmodule
