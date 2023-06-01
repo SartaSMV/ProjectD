@@ -25,7 +25,7 @@ wire o_valid_output;
 reg i_valid_input;
 
 wire o_ready;
-wire [SIZE_OUTPUT_BIT*2-1:0] o_data;
+wire [79:0] o_data;
 
 Modulator tb (
   .i_clk(i_clk),
@@ -90,10 +90,10 @@ initial begin
 end
 
 
-wire signed [SIZE_OUTPUT_BIT-1:0] q_out;
-wire signed [SIZE_OUTPUT_BIT-1:0] i_out;
-assign q_out = o_data[SIZE_OUTPUT_BIT*2-1:SIZE_OUTPUT_BIT];
-assign i_out = o_data[SIZE_OUTPUT_BIT-1:0];
+wire signed [32:0] q_out;
+wire signed [32:0] i_out;
+assign q_out = o_data[72:40];
+assign i_out = o_data[32:0];
 reg ok;
 reg [SIZE_COUNTER-1:0] count_spread;
 always @(posedge i_clk or posedge i_reset) begin
