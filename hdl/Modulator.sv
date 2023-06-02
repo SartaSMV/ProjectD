@@ -24,7 +24,7 @@ module Modulator #(
   input i_valid_input,
   output o_ready,
   // Выходные данные
-  output [79:0] o_data,
+  output [31:0] o_data,
   output o_valid_output
 );
 
@@ -53,16 +53,27 @@ wire s_axis_data_tready_firx2;
 wire m_axis_data_tvalid_firx2;
 wire [63:0] m_axis_data_tdata_firx2;
 
-// fifo_for_firx4
-wire [31:0] din_fifo_for_firx4;
-wire i_rd_en_fifo_for_firx4;
-wire prog_full_fifo_for_firx4;
-wire valid_fifo_for_firx4;
-wire [31:0] o_data_fifo_for_firx4;
+// firx4
+wire [31:0] s_axis_data_tdata_firx4;
+wire m_axis_data_tvalid_firx4;
+wire [79:0] m_axis_data_tdata_firx4;
 
+// cic_I
+wire m_axis_data_tvalid_cic_I;
+wire signed [15:0] s_axis_data_tdata_cic_I;
+wire signed [31:0] m_axis_data_tdata_cic_I;
+
+// cic_Q
+wire m_axis_data_tvalid_cic_Q;
+wire signed [15:0] s_axis_data_tdata_cic_Q;
+wire signed [31:0] m_axis_data_tdata_cic_Q;
 
 assign i_enable_spread = ~prog_full_fifo_with_spread;
-assign din_fifo_for_firx4 = {m_axis_data_tdata_firx2[63:48], m_axis_data_tdata_firx2[31:16]};
+
+assign s_axis_data_tdata_firx4 = {m_axis_data_tdata_firx2[63:48], m_axis_data_tdata_firx2[31:16]};
+
+assign s_axis_data_tdata_cic_I = m_axis_data_tdata_firx4[72-2:55];
+assign s_axis_data_tdata_cic_Q = m_axis_data_tdata_firx4[32-2:15];
 
 Pack Pack (
   // Управляющие сигналы
@@ -139,39 +150,34 @@ fir_compiler_0 fir_filterx2 (
   .m_axis_data_tdata(m_axis_data_tdata_firx2)
 );
 
-Divider_clk #(
-  .DIVIDER(120)
-)
-Divider_clk_for_fifo_with_fir_filterx2 (
-  .i_clk(i_clk),
-  .i_reset(i_reset),
-  .i_ready(prog_full_fifo_for_firx4),
-  .o_clk(i_rd_en_fifo_for_firx4)
-);
-
-fifo_for_firx4 fifo_for_firx4 (
-  .clk(i_clk),
-  .srst(i_reset),
-  .din(din_fifo_for_firx4),
-  .wr_en(m_axis_data_tvalid_firx2),
-  .rd_en(i_rd_en_fifo_for_firx4),
-  .dout(o_data_fifo_for_firx4),
-  .full(),
-  .empty(),
-  .valid(valid_fifo_for_firx4),
-  .prog_full(prog_full_fifo_for_firx4)
-);
-
 fir_4x fir_4x(
   .aclk(i_clk),
-  .s_axis_data_tvalid(valid_fifo_for_firx4),
+  .s_axis_data_tvalid(m_axis_data_tvalid_firx2),
   .s_axis_data_tready(),
-  .s_axis_data_tdata(o_data_fifo_for_firx4),
-  .m_axis_data_tvalid(o_valid_output),
-  .m_axis_data_tdata(o_data)
+  .s_axis_data_tdata(s_axis_data_tdata_firx4),
+  .m_axis_data_tvalid(m_axis_data_tvalid_firx4),
+  .m_axis_data_tdata(m_axis_data_tdata_firx4)
 );
 
+cic cic_I (
+  .aclk(i_clk),
+  .s_axis_data_tdata(s_axis_data_tdata_cic_I),
+  .s_axis_data_tvalid(m_axis_data_tvalid_firx4),
+  .s_axis_data_tready(),
+  .m_axis_data_tdata(m_axis_data_tdata_cic_I),
+  .m_axis_data_tvalid(m_axis_data_tvalid_cic_I)
+);
 
+cic cic_Q (
+  .aclk(i_clk),
+  .s_axis_data_tdata(s_axis_data_tdata_cic_Q),
+  .s_axis_data_tvalid(m_axis_data_tvalid_firx4),
+  .s_axis_data_tready(),
+  .m_axis_data_tdata(m_axis_data_tdata_cic_Q),
+  .m_axis_data_tvalid(m_axis_data_tvalid_cic_Q)
+);
 
+assign o_data = {m_axis_data_tdata_cic_I[31-2:14], m_axis_data_tdata_cic_Q[31-2:14]};
+assign o_valid_output = m_axis_data_tvalid_cic_I && m_axis_data_tvalid_cic_Q;
 
 endmodule
