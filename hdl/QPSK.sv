@@ -32,7 +32,7 @@ ZERO_ONE = {-16'd23169, 16'd23169},
 ONE_ZERO = {16'd23169, -16'd23169},
 ONE_ONE = {-16'd23169, -16'd23169};
 
-always @(posedge i_clk or posedge i_reset) begin
+always @(posedge i_clk) begin
   // Сброс
   if(i_reset) begin
     count <= 1'b0;

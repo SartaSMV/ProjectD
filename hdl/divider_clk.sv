@@ -14,7 +14,7 @@ module Divider_clk #(
 reg [SIZE_COUNTER-1:0] count;
 reg ready;
 
-always @(posedge i_clk or posedge i_reset) begin
+always @(posedge i_clk) begin
   if(i_reset) begin
     count <= {SIZE_COUNTER{1'b0}};
     o_clk <= 1'b0;

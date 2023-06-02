@@ -54,7 +54,7 @@ lfsr lfsr (
 assign o_data = spreading_code[counter] ^ input_data;
 
 // Генерация ПСП
-always @(posedge i_clk or posedge i_reset) begin
+always @(posedge i_clk) begin
   // Сброс
   if (i_reset) begin
     spreading_code <= {SPREAD{1'b0}};
@@ -72,7 +72,7 @@ always @(posedge i_clk or posedge i_reset) begin
 end
 
 // Генерация расширенного бита
-always @(posedge i_clk or posedge i_reset) begin
+always @(posedge i_clk) begin
   // Сброс
   if (i_reset) begin
     o_ready <= 1'b0;

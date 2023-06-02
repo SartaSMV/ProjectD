@@ -177,7 +177,7 @@ cic cic_Q (
   .m_axis_data_tvalid(m_axis_data_tvalid_cic_Q)
 );
 
-assign o_data = {m_axis_data_tdata_cic_I[31-2:14], m_axis_data_tdata_cic_Q[31-2:14]};
-assign o_valid_output = m_axis_data_tvalid_cic_I && m_axis_data_tvalid_cic_Q;
+assign o_data = o_data_fir_filter /*{m_axis_data_tdata_cic_I[31-2:14], m_axis_data_tdata_cic_Q[31-2:14]}*/;
+assign o_valid_output = o_valid_fir_filter /*m_axis_data_tvalid_cic_I && m_axis_data_tvalid_cic_Q*/;
 
 endmodule

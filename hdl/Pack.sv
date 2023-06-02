@@ -121,7 +121,7 @@ blk_mem_gen_1 blank_pack (
 );
 
 // Ввод битов в пакет
-always @(posedge i_clk or posedge i_reset) begin
+always @(posedge i_clk) begin
   // Сброс
   if(i_reset) begin
     enable_packs <= 1'b1;
@@ -157,7 +157,7 @@ always @(posedge i_clk or posedge i_reset) begin
 end
 
 // Вывод битов из пакета
-always @(posedge i_clk or posedge i_reset) begin
+always @(posedge i_clk) begin
   // Сброс
   if(i_reset) begin
     is_empty_pack <= 1'b1;

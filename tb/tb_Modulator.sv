@@ -13,7 +13,7 @@ module tb_Modulator #(
   parameter ADDR_FIRST_WRITE = SISE_PREAMBLE / SIZE_INPUT_BIT,
   parameter SIZE_ADDR_OUTPUT = $clog2(SIZE_BIT_PACK),
 
-  parameter OUT_FILE = SIZE_BIT_PACK*30,
+  parameter OUT_FILE = SIZE_BIT_PACK / 2,
   parameter SIZE_COUNTER = $clog2(OUT_FILE)
 );
 
@@ -65,10 +65,10 @@ bit module_output [0:SIZE_BIT_PACK-1];
 bit [SIZE_INPUT_BIT-1:0] ref_input [0:SIZE_BIT_PACK/8-1];
 initial begin
   fid_o = $fopen("tb_pack.dat", "r");
-  for(int i = 0; i<SIZE_BIT_PACK; i++) begin
+  for(int i = 0; i < SIZE_BIT_PACK; i++) begin
     $fscanf(fid_o,"%b",ref_output[i]);
   end
-  for(int i = 0; i<SIZE_BIT_PACK; i++) begin
+  for(int i = 0; i < SIZE_BIT_PACK; i++) begin
     if(i < SISE_PREAMBLE) ref_output_blank[i] = ref_output[i];
     else ref_output_blank[i] = 0;
   end
@@ -93,8 +93,8 @@ end
 parameter SIZE_QI = 16;
 wire signed [SIZE_QI-1:0] q_out;
 wire signed [SIZE_QI-1:0] i_out;
-assign q_out = o_data[31:16];
-assign i_out = o_data[15:0];
+assign i_out = o_data[31:16];
+assign q_out = o_data[15:0];
 reg ok;
 reg [SIZE_COUNTER-1:0] count_spread;
 always @(posedge i_clk or posedge i_reset) begin
@@ -103,7 +103,7 @@ always @(posedge i_clk or posedge i_reset) begin
     ok <= 0;
   end
   else if(o_valid_output) begin
-    if(count_spread + 1 < OUT_FILE) begin
+    if(count_spread < OUT_FILE - 1) begin
       count_spread <= count_spread + 1;
       $fwrite(fid_i, "%d\t\t%d\n", q_out, i_out);
     end
