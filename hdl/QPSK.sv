@@ -26,7 +26,7 @@ module QPSK (
 reg count;
 reg data;
 
-// Параметры Q и I
+// Параметры I и Q
 parameter ZERO_ZERO = {16'd23169, 16'd23169},
 ZERO_ONE = {-16'd23169, 16'd23169},
 ONE_ZERO = {16'd23169, -16'd23169},

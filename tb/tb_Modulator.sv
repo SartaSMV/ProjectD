@@ -13,7 +13,7 @@ module tb_Modulator #(
   parameter ADDR_FIRST_WRITE = SISE_PREAMBLE / SIZE_INPUT_BIT,
   parameter SIZE_ADDR_OUTPUT = $clog2(SIZE_BIT_PACK),
 
-  parameter OUT_FILE = SIZE_BIT_PACK*2,
+  parameter OUT_FILE = SIZE_BIT_PACK*30,
   parameter SIZE_COUNTER = $clog2(OUT_FILE)
 );
 
@@ -25,7 +25,7 @@ wire o_valid_output;
 reg i_valid_input;
 
 wire o_ready;
-wire [SIZE_OUTPUT_BIT*2-1:0] o_data;
+wire [31:0] o_data;
 
 Modulator tb (
   .i_clk(i_clk),
@@ -90,10 +90,11 @@ initial begin
 end
 
 
-wire signed [SIZE_OUTPUT_BIT-1:0] q_out;
-wire signed [SIZE_OUTPUT_BIT-1:0] i_out;
-assign q_out = o_data[SIZE_OUTPUT_BIT*2-1:SIZE_OUTPUT_BIT];
-assign i_out = o_data[SIZE_OUTPUT_BIT-1:0];
+parameter SIZE_QI = 16;
+wire signed [SIZE_QI-1:0] q_out;
+wire signed [SIZE_QI-1:0] i_out;
+assign q_out = o_data[31:16];
+assign i_out = o_data[15:0];
 reg ok;
 reg [SIZE_COUNTER-1:0] count_spread;
 always @(posedge i_clk or posedge i_reset) begin
