@@ -93,8 +93,8 @@ end
 parameter SIZE_QI = 16;
 wire signed [SIZE_QI-1:0] q_out;
 wire signed [SIZE_QI-1:0] i_out;
-assign i_out = o_data[31:16];
-assign q_out = o_data[15:0];
+assign i_out = tb.s_axis_data_tdata_firx4[31:16] /*o_data[31:16]*/;
+assign q_out = tb.s_axis_data_tdata_firx4[15:0] /*o_data[15:0]*/;
 reg ok;
 reg [SIZE_COUNTER-1:0] count_spread;
 always @(posedge i_clk or posedge i_reset) begin
@@ -102,7 +102,7 @@ always @(posedge i_clk or posedge i_reset) begin
     count_spread <= {SIZE_COUNTER{1'b0}};
     ok <= 0;
   end
-  else if(o_valid_output) begin
+  else if(tb.m_axis_data_tvalid_firx2/*o_valid_output*/) begin
     if(count_spread < OUT_FILE - 1) begin
       count_spread <= count_spread + 1;
       $fwrite(fid_i, "%d\t%d\n", i_out, q_out);
