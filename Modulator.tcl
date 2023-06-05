@@ -18,24 +18,24 @@
 proc checkRequiredFiles { origin_dir} {
   set status true
   set files [list \
- "[file normalize "$origin_dir/ip/fifo_generator_0/fifo_generator_0.xci"]"\
- "[file normalize "$origin_dir/ip/blk_mem_gen_1/blk_mem_gen_1.xci"]"\
- "[file normalize "$origin_dir/ip/blk_mem_gen_0/blk_mem_gen_0.xci"]"\
- "[file normalize "$origin_dir/hdl/Modulator.sv"]"\
+ "[file normalize "$origin_dir/ip/cic/cic.xci"]"\
+ "[file normalize "$origin_dir/ip/fir_4x/fir_4x.xci"]"\
  "[file normalize "$origin_dir/hdl/Pack.sv"]"\
  "[file normalize "$origin_dir/hdl/QPSK.sv"]"\
  "[file normalize "$origin_dir/hdl/Spread.sv"]"\
  "[file normalize "$origin_dir/hdl/divider_clk.sv"]"\
+ "[file normalize "$origin_dir/hdl/immit_data_coder.sv"]"\
  "[file normalize "$origin_dir/hdl/lfsr.sv"]"\
+ "[file normalize "$origin_dir/hdl/Modulator.sv"]"\
  "[file normalize "$origin_dir/hdl/top.sv"]"\
- "[file normalize "$origin_dir/data/rrc_25_101.coe"]"\
  "[file normalize "$origin_dir/data/init_memory_pack.coe"]"\
  "[file normalize "$origin_dir/data/init_memory_blank_pack.coe"]"\
+ "[file normalize "$origin_dir/data/rrc_25_101.coe"]"\
  "[file normalize "$origin_dir/data/fir_4x.coe"]"\
- "[file normalize "$origin_dir/ip/fir_4x/fir_4x.xci"]"\
- "[file normalize "$origin_dir/ip/fifo_for_firx4/fifo_for_firx4.xci"]"\
+ "[file normalize "$origin_dir/ip/fifo_generator_0/fifo_generator_0.xci"]"\
+ "[file normalize "$origin_dir/ip/blk_mem_gen_1/blk_mem_gen_1.xci"]"\
+ "[file normalize "$origin_dir/ip/blk_mem_gen_0/blk_mem_gen_0.xci"]"\
  "[file normalize "$origin_dir/ip/fir_compiler_0/fir_compiler_0.xci"]"\
- "[file normalize "$origin_dir/ip/cic/cic.xci"]"\
  "[file normalize "$origin_dir/tb/tb_Modulator.sv"]"\
  "[file normalize "$origin_dir/tb/tb_Pack.sv"]"\
  "[file normalize "$origin_dir/tb/tb_QPSK.sv"]"\
@@ -152,14 +152,15 @@ set_property -name "revised_directory_structure" -value "1" -objects $obj
 set_property -name "sim.central_dir" -value "$proj_dir/${_xil_proj_name_}.ip_user_files" -objects $obj
 set_property -name "sim.ip.auto_export_scripts" -value "1" -objects $obj
 set_property -name "simulator_language" -value "Mixed" -objects $obj
-set_property -name "webtalk.activehdl_export_sim" -value "31" -objects $obj
-set_property -name "webtalk.ies_export_sim" -value "31" -objects $obj
-set_property -name "webtalk.modelsim_export_sim" -value "31" -objects $obj
-set_property -name "webtalk.questa_export_sim" -value "31" -objects $obj
-set_property -name "webtalk.riviera_export_sim" -value "31" -objects $obj
-set_property -name "webtalk.vcs_export_sim" -value "31" -objects $obj
-set_property -name "webtalk.xsim_export_sim" -value "31" -objects $obj
-set_property -name "webtalk.xsim_launch_sim" -value "482" -objects $obj
+set_property -name "webtalk.activehdl_export_sim" -value "32" -objects $obj
+set_property -name "webtalk.ies_export_sim" -value "32" -objects $obj
+set_property -name "webtalk.modelsim_export_sim" -value "32" -objects $obj
+set_property -name "webtalk.questa_export_sim" -value "32" -objects $obj
+set_property -name "webtalk.riviera_export_sim" -value "32" -objects $obj
+set_property -name "webtalk.vcs_export_sim" -value "32" -objects $obj
+set_property -name "webtalk.xcelium_export_sim" -value "1" -objects $obj
+set_property -name "webtalk.xsim_export_sim" -value "32" -objects $obj
+set_property -name "webtalk.xsim_launch_sim" -value "440" -objects $obj
 set_property -name "xpm_libraries" -value "XPM_CDC XPM_MEMORY" -objects $obj
 
 # Create 'sources_1' fileset (if not found)
@@ -170,25 +171,25 @@ if {[string equal [get_filesets -quiet sources_1] ""]} {
 # Set 'sources_1' fileset object
 set obj [get_filesets sources_1]
 set files [list \
- [file normalize "${origin_dir}/ip/fifo_generator_0/fifo_generator_0.xci"] \
- [file normalize "${origin_dir}/ip/blk_mem_gen_1/blk_mem_gen_1.xci"] \
- [file normalize "${origin_dir}/ip/blk_mem_gen_0/blk_mem_gen_0.xci"] \
- [file normalize "${origin_dir}/hdl/Modulator.sv"] \
+ [file normalize "${origin_dir}/ip/cic/cic.xci"] \
+ [file normalize "${origin_dir}/ip/fir_4x/fir_4x.xci"] \
  [file normalize "${origin_dir}/hdl/Pack.sv"] \
  [file normalize "${origin_dir}/hdl/QPSK.sv"] \
  [file normalize "${origin_dir}/hdl/Spread.sv"] \
  [file normalize "${origin_dir}/hdl/divider_clk.sv"] \
+ [file normalize "${origin_dir}/hdl/immit_data_coder.sv"] \
  [file normalize "${origin_dir}/hdl/lfsr.sv"] \
+ [file normalize "${origin_dir}/hdl/Modulator.sv"] \
  [file normalize "${origin_dir}/hdl/top.sv"] \
- [file normalize "${origin_dir}/data/rrc_25_101.coe"] \
  [file normalize "${origin_dir}/data/init_memory_pack.coe"] \
  [file normalize "${origin_dir}/data/init_memory_blank_pack.coe"] \
+ [file normalize "${origin_dir}/data/rrc_25_101.coe"] \
  [file normalize "${origin_dir}/data/fir_4x.coe"] \
 ]
 add_files -norecurse -fileset $obj $files
 
 # Set 'sources_1' fileset file properties for remote files
-set file "$origin_dir/ip/fifo_generator_0/fifo_generator_0.xci"
+set file "$origin_dir/ip/cic/cic.xci"
 set file [file normalize $file]
 set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
 set_property -name "generate_files_for_reference" -value "0" -objects $file_obj
@@ -197,7 +198,7 @@ if { ![get_property "is_locked" $file_obj] } {
   set_property -name "synth_checkpoint_mode" -value "Singular" -objects $file_obj
 }
 
-set file "$origin_dir/ip/blk_mem_gen_1/blk_mem_gen_1.xci"
+set file "$origin_dir/ip/fir_4x/fir_4x.xci"
 set file [file normalize $file]
 set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
 set_property -name "generate_files_for_reference" -value "0" -objects $file_obj
@@ -205,20 +206,6 @@ set_property -name "registered_with_manager" -value "1" -objects $file_obj
 if { ![get_property "is_locked" $file_obj] } {
   set_property -name "synth_checkpoint_mode" -value "Singular" -objects $file_obj
 }
-
-set file "$origin_dir/ip/blk_mem_gen_0/blk_mem_gen_0.xci"
-set file [file normalize $file]
-set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
-set_property -name "generate_files_for_reference" -value "0" -objects $file_obj
-set_property -name "registered_with_manager" -value "1" -objects $file_obj
-if { ![get_property "is_locked" $file_obj] } {
-  set_property -name "synth_checkpoint_mode" -value "Singular" -objects $file_obj
-}
-
-set file "$origin_dir/hdl/Modulator.sv"
-set file [file normalize $file]
-set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
-set_property -name "file_type" -value "SystemVerilog" -objects $file_obj
 
 set file "$origin_dir/hdl/Pack.sv"
 set file [file normalize $file]
@@ -240,7 +227,17 @@ set file [file normalize $file]
 set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
 set_property -name "file_type" -value "SystemVerilog" -objects $file_obj
 
+set file "$origin_dir/hdl/immit_data_coder.sv"
+set file [file normalize $file]
+set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
+set_property -name "file_type" -value "SystemVerilog" -objects $file_obj
+
 set file "$origin_dir/hdl/lfsr.sv"
+set file [file normalize $file]
+set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
+set_property -name "file_type" -value "SystemVerilog" -objects $file_obj
+
+set file "$origin_dir/hdl/Modulator.sv"
 set file [file normalize $file]
 set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
 set_property -name "file_type" -value "SystemVerilog" -objects $file_obj
@@ -256,18 +253,18 @@ set_property -name "file_type" -value "SystemVerilog" -objects $file_obj
 
 # Set 'sources_1' fileset properties
 set obj [get_filesets sources_1]
-set_property -name "top" -value "top" -objects $obj
+set_property -name "top" -value "Modulator" -objects $obj
 set_property -name "top_auto_set" -value "0" -objects $obj
 
 # Set 'sources_1' fileset object
 set obj [get_filesets sources_1]
 set files [list \
- [file normalize "${origin_dir}/ip/fir_4x/fir_4x.xci"] \
+ [file normalize "${origin_dir}/ip/fifo_generator_0/fifo_generator_0.xci"] \
 ]
 add_files -norecurse -fileset $obj $files
 
 # Set 'sources_1' fileset file properties for remote files
-set file "$origin_dir/ip/fir_4x/fir_4x.xci"
+set file "$origin_dir/ip/fifo_generator_0/fifo_generator_0.xci"
 set file [file normalize $file]
 set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
 set_property -name "generate_files_for_reference" -value "0" -objects $file_obj
@@ -283,12 +280,33 @@ if { ![get_property "is_locked" $file_obj] } {
 # Set 'sources_1' fileset object
 set obj [get_filesets sources_1]
 set files [list \
- [file normalize "${origin_dir}/ip/fifo_for_firx4/fifo_for_firx4.xci"] \
+ [file normalize "${origin_dir}/ip/blk_mem_gen_1/blk_mem_gen_1.xci"] \
 ]
 add_files -norecurse -fileset $obj $files
 
 # Set 'sources_1' fileset file properties for remote files
-set file "$origin_dir/ip/fifo_for_firx4/fifo_for_firx4.xci"
+set file "$origin_dir/ip/blk_mem_gen_1/blk_mem_gen_1.xci"
+set file [file normalize $file]
+set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
+set_property -name "generate_files_for_reference" -value "0" -objects $file_obj
+set_property -name "registered_with_manager" -value "1" -objects $file_obj
+if { ![get_property "is_locked" $file_obj] } {
+  set_property -name "synth_checkpoint_mode" -value "Singular" -objects $file_obj
+}
+
+
+# Set 'sources_1' fileset file properties for local files
+# None
+
+# Set 'sources_1' fileset object
+set obj [get_filesets sources_1]
+set files [list \
+ [file normalize "${origin_dir}/ip/blk_mem_gen_0/blk_mem_gen_0.xci"] \
+]
+add_files -norecurse -fileset $obj $files
+
+# Set 'sources_1' fileset file properties for remote files
+set file "$origin_dir/ip/blk_mem_gen_0/blk_mem_gen_0.xci"
 set file [file normalize $file]
 set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
 set_property -name "generate_files_for_reference" -value "0" -objects $file_obj
@@ -310,27 +328,6 @@ add_files -norecurse -fileset $obj $files
 
 # Set 'sources_1' fileset file properties for remote files
 set file "$origin_dir/ip/fir_compiler_0/fir_compiler_0.xci"
-set file [file normalize $file]
-set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
-set_property -name "generate_files_for_reference" -value "0" -objects $file_obj
-set_property -name "registered_with_manager" -value "1" -objects $file_obj
-if { ![get_property "is_locked" $file_obj] } {
-  set_property -name "synth_checkpoint_mode" -value "Singular" -objects $file_obj
-}
-
-
-# Set 'sources_1' fileset file properties for local files
-# None
-
-# Set 'sources_1' fileset object
-set obj [get_filesets sources_1]
-set files [list \
- [file normalize "${origin_dir}/ip/cic/cic.xci"] \
-]
-add_files -norecurse -fileset $obj $files
-
-# Set 'sources_1' fileset file properties for remote files
-set file "$origin_dir/ip/cic/cic.xci"
 set file [file normalize $file]
 set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
 set_property -name "generate_files_for_reference" -value "0" -objects $file_obj
@@ -453,6 +450,7 @@ if { $obj != "" } {
 
 }
 set obj [get_runs synth_1]
+set_property -name "needs_refresh" -value "1" -objects $obj
 set_property -name "strategy" -value "Vivado Synthesis Defaults" -objects $obj
 
 # set the current synth run
@@ -688,7 +686,6 @@ if { [ string equal [get_report_configs -of_objects [get_runs impl_1_copy_1] imp
 set obj [get_report_configs -of_objects [get_runs impl_1_copy_1] impl_1_copy_1_init_report_timing_summary_0]
 if { $obj != "" } {
 set_property -name "is_enabled" -value "0" -objects $obj
-set_property -name "display_name" -value "impl_1_copy_1_init_report_timing_summary_0" -objects $obj
 set_property -name "options.max_paths" -value "10" -objects $obj
 
 }
@@ -698,7 +695,6 @@ if { [ string equal [get_report_configs -of_objects [get_runs impl_1_copy_1] imp
 }
 set obj [get_report_configs -of_objects [get_runs impl_1_copy_1] impl_1_copy_1_opt_report_drc_0]
 if { $obj != "" } {
-set_property -name "display_name" -value "impl_1_copy_1_opt_report_drc_0" -objects $obj
 
 }
 # Create 'impl_1_copy_1_opt_report_timing_summary_0' report (if not found)
@@ -708,7 +704,6 @@ if { [ string equal [get_report_configs -of_objects [get_runs impl_1_copy_1] imp
 set obj [get_report_configs -of_objects [get_runs impl_1_copy_1] impl_1_copy_1_opt_report_timing_summary_0]
 if { $obj != "" } {
 set_property -name "is_enabled" -value "0" -objects $obj
-set_property -name "display_name" -value "impl_1_copy_1_opt_report_timing_summary_0" -objects $obj
 set_property -name "options.max_paths" -value "10" -objects $obj
 
 }
@@ -719,7 +714,6 @@ if { [ string equal [get_report_configs -of_objects [get_runs impl_1_copy_1] imp
 set obj [get_report_configs -of_objects [get_runs impl_1_copy_1] impl_1_copy_1_power_opt_report_timing_summary_0]
 if { $obj != "" } {
 set_property -name "is_enabled" -value "0" -objects $obj
-set_property -name "display_name" -value "impl_1_copy_1_power_opt_report_timing_summary_0" -objects $obj
 set_property -name "options.max_paths" -value "10" -objects $obj
 
 }
@@ -729,7 +723,6 @@ if { [ string equal [get_report_configs -of_objects [get_runs impl_1_copy_1] imp
 }
 set obj [get_report_configs -of_objects [get_runs impl_1_copy_1] impl_1_copy_1_place_report_io_0]
 if { $obj != "" } {
-set_property -name "display_name" -value "impl_1_copy_1_place_report_io_0" -objects $obj
 
 }
 # Create 'impl_1_copy_1_place_report_utilization_0' report (if not found)
@@ -738,7 +731,6 @@ if { [ string equal [get_report_configs -of_objects [get_runs impl_1_copy_1] imp
 }
 set obj [get_report_configs -of_objects [get_runs impl_1_copy_1] impl_1_copy_1_place_report_utilization_0]
 if { $obj != "" } {
-set_property -name "display_name" -value "impl_1_copy_1_place_report_utilization_0" -objects $obj
 
 }
 # Create 'impl_1_copy_1_place_report_control_sets_0' report (if not found)
@@ -747,7 +739,6 @@ if { [ string equal [get_report_configs -of_objects [get_runs impl_1_copy_1] imp
 }
 set obj [get_report_configs -of_objects [get_runs impl_1_copy_1] impl_1_copy_1_place_report_control_sets_0]
 if { $obj != "" } {
-set_property -name "display_name" -value "impl_1_copy_1_place_report_control_sets_0" -objects $obj
 set_property -name "options.verbose" -value "1" -objects $obj
 
 }
@@ -758,7 +749,6 @@ if { [ string equal [get_report_configs -of_objects [get_runs impl_1_copy_1] imp
 set obj [get_report_configs -of_objects [get_runs impl_1_copy_1] impl_1_copy_1_place_report_incremental_reuse_0]
 if { $obj != "" } {
 set_property -name "is_enabled" -value "0" -objects $obj
-set_property -name "display_name" -value "impl_1_copy_1_place_report_incremental_reuse_0" -objects $obj
 
 }
 # Create 'impl_1_copy_1_place_report_incremental_reuse_1' report (if not found)
@@ -768,7 +758,6 @@ if { [ string equal [get_report_configs -of_objects [get_runs impl_1_copy_1] imp
 set obj [get_report_configs -of_objects [get_runs impl_1_copy_1] impl_1_copy_1_place_report_incremental_reuse_1]
 if { $obj != "" } {
 set_property -name "is_enabled" -value "0" -objects $obj
-set_property -name "display_name" -value "impl_1_copy_1_place_report_incremental_reuse_1" -objects $obj
 
 }
 # Create 'impl_1_copy_1_place_report_timing_summary_0' report (if not found)
@@ -778,7 +767,6 @@ if { [ string equal [get_report_configs -of_objects [get_runs impl_1_copy_1] imp
 set obj [get_report_configs -of_objects [get_runs impl_1_copy_1] impl_1_copy_1_place_report_timing_summary_0]
 if { $obj != "" } {
 set_property -name "is_enabled" -value "0" -objects $obj
-set_property -name "display_name" -value "impl_1_copy_1_place_report_timing_summary_0" -objects $obj
 set_property -name "options.max_paths" -value "10" -objects $obj
 
 }
@@ -789,7 +777,6 @@ if { [ string equal [get_report_configs -of_objects [get_runs impl_1_copy_1] imp
 set obj [get_report_configs -of_objects [get_runs impl_1_copy_1] impl_1_copy_1_post_place_power_opt_report_timing_summary_0]
 if { $obj != "" } {
 set_property -name "is_enabled" -value "0" -objects $obj
-set_property -name "display_name" -value "impl_1_copy_1_post_place_power_opt_report_timing_summary_0" -objects $obj
 set_property -name "options.max_paths" -value "10" -objects $obj
 
 }
@@ -800,7 +787,6 @@ if { [ string equal [get_report_configs -of_objects [get_runs impl_1_copy_1] imp
 set obj [get_report_configs -of_objects [get_runs impl_1_copy_1] impl_1_copy_1_phys_opt_report_timing_summary_0]
 if { $obj != "" } {
 set_property -name "is_enabled" -value "0" -objects $obj
-set_property -name "display_name" -value "impl_1_copy_1_phys_opt_report_timing_summary_0" -objects $obj
 set_property -name "options.max_paths" -value "10" -objects $obj
 
 }
@@ -810,7 +796,6 @@ if { [ string equal [get_report_configs -of_objects [get_runs impl_1_copy_1] imp
 }
 set obj [get_report_configs -of_objects [get_runs impl_1_copy_1] impl_1_copy_1_route_report_drc_0]
 if { $obj != "" } {
-set_property -name "display_name" -value "impl_1_copy_1_route_report_drc_0" -objects $obj
 
 }
 # Create 'impl_1_copy_1_route_report_methodology_0' report (if not found)
@@ -819,7 +804,6 @@ if { [ string equal [get_report_configs -of_objects [get_runs impl_1_copy_1] imp
 }
 set obj [get_report_configs -of_objects [get_runs impl_1_copy_1] impl_1_copy_1_route_report_methodology_0]
 if { $obj != "" } {
-set_property -name "display_name" -value "impl_1_copy_1_route_report_methodology_0" -objects $obj
 
 }
 # Create 'impl_1_copy_1_route_report_power_0' report (if not found)
@@ -828,7 +812,6 @@ if { [ string equal [get_report_configs -of_objects [get_runs impl_1_copy_1] imp
 }
 set obj [get_report_configs -of_objects [get_runs impl_1_copy_1] impl_1_copy_1_route_report_power_0]
 if { $obj != "" } {
-set_property -name "display_name" -value "impl_1_copy_1_route_report_power_0" -objects $obj
 
 }
 # Create 'impl_1_copy_1_route_report_route_status_0' report (if not found)
@@ -837,7 +820,6 @@ if { [ string equal [get_report_configs -of_objects [get_runs impl_1_copy_1] imp
 }
 set obj [get_report_configs -of_objects [get_runs impl_1_copy_1] impl_1_copy_1_route_report_route_status_0]
 if { $obj != "" } {
-set_property -name "display_name" -value "impl_1_copy_1_route_report_route_status_0" -objects $obj
 
 }
 # Create 'impl_1_copy_1_route_report_timing_summary_0' report (if not found)
@@ -846,7 +828,6 @@ if { [ string equal [get_report_configs -of_objects [get_runs impl_1_copy_1] imp
 }
 set obj [get_report_configs -of_objects [get_runs impl_1_copy_1] impl_1_copy_1_route_report_timing_summary_0]
 if { $obj != "" } {
-set_property -name "display_name" -value "impl_1_copy_1_route_report_timing_summary_0" -objects $obj
 set_property -name "options.max_paths" -value "10" -objects $obj
 
 }
@@ -856,7 +837,6 @@ if { [ string equal [get_report_configs -of_objects [get_runs impl_1_copy_1] imp
 }
 set obj [get_report_configs -of_objects [get_runs impl_1_copy_1] impl_1_copy_1_route_report_incremental_reuse_0]
 if { $obj != "" } {
-set_property -name "display_name" -value "impl_1_copy_1_route_report_incremental_reuse_0" -objects $obj
 
 }
 # Create 'impl_1_copy_1_route_report_clock_utilization_0' report (if not found)
@@ -865,7 +845,6 @@ if { [ string equal [get_report_configs -of_objects [get_runs impl_1_copy_1] imp
 }
 set obj [get_report_configs -of_objects [get_runs impl_1_copy_1] impl_1_copy_1_route_report_clock_utilization_0]
 if { $obj != "" } {
-set_property -name "display_name" -value "impl_1_copy_1_route_report_clock_utilization_0" -objects $obj
 
 }
 # Create 'impl_1_copy_1_route_report_bus_skew_0' report (if not found)
@@ -874,7 +853,6 @@ if { [ string equal [get_report_configs -of_objects [get_runs impl_1_copy_1] imp
 }
 set obj [get_report_configs -of_objects [get_runs impl_1_copy_1] impl_1_copy_1_route_report_bus_skew_0]
 if { $obj != "" } {
-set_property -name "display_name" -value "impl_1_copy_1_route_report_bus_skew_0" -objects $obj
 set_property -name "options.warn_on_violation" -value "1" -objects $obj
 
 }
@@ -884,7 +862,6 @@ if { [ string equal [get_report_configs -of_objects [get_runs impl_1_copy_1] imp
 }
 set obj [get_report_configs -of_objects [get_runs impl_1_copy_1] impl_1_copy_1_post_route_phys_opt_report_timing_summary_0]
 if { $obj != "" } {
-set_property -name "display_name" -value "impl_1_copy_1_post_route_phys_opt_report_timing_summary_0" -objects $obj
 set_property -name "options.max_paths" -value "10" -objects $obj
 set_property -name "options.warn_on_violation" -value "1" -objects $obj
 
@@ -895,7 +872,6 @@ if { [ string equal [get_report_configs -of_objects [get_runs impl_1_copy_1] imp
 }
 set obj [get_report_configs -of_objects [get_runs impl_1_copy_1] impl_1_copy_1_post_route_phys_opt_report_bus_skew_0]
 if { $obj != "" } {
-set_property -name "display_name" -value "impl_1_copy_1_post_route_phys_opt_report_bus_skew_0" -objects $obj
 set_property -name "options.warn_on_violation" -value "1" -objects $obj
 
 }
