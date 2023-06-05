@@ -13,12 +13,12 @@ module tb_Modulator #(
   parameter ADDR_FIRST_WRITE = SISE_PREAMBLE / SIZE_INPUT_BIT,
   parameter SIZE_ADDR_OUTPUT = $clog2(SIZE_BIT_PACK),
 
-  parameter OUT_FILE = SIZE_BIT_PACK / 2,
+  parameter OUT_FILE = SIZE_BIT_PACK * 240 * 2,
   parameter SIZE_COUNTER = $clog2(OUT_FILE)
 );
 
-reg i_clk;
-reg i_reset;
+reg i_clk = 0;
+reg i_reset = 1;
 
 reg [SIZE_INPUT_BIT-1:0] i_data;
 wire o_valid_output;
@@ -32,7 +32,7 @@ Modulator tb (
   .i_reset(i_reset),
 
   .i_data(i_data),
-  .i_valid_input(o_valid_output),
+  .i_valid_input(i_valid_input),
   .o_ready(o_ready),
   // Выходные данные
   .o_data(o_data),
@@ -49,7 +49,7 @@ initial begin
     @(reset_trigger)
     @(posedge i_clk);
     i_reset <= 1;
-    repeat (4) begin
+    repeat (11) begin
       @(posedge i_clk);
     end
     i_reset <= 0;
@@ -105,11 +105,11 @@ always @(posedge i_clk or posedge i_reset) begin
   else if(o_valid_output) begin
     if(count_spread < OUT_FILE - 1) begin
       count_spread <= count_spread + 1;
-      $fwrite(fid_i, "%d\t\t%d\n", q_out, i_out);
+      $fwrite(fid_i, "%d\t%d\n", i_out, q_out);
     end
     else begin
       count_spread <= {SIZE_COUNTER{1'b0}};
-      $fwrite(fid_i, "%d\t\t%d\n", q_out, i_out);
+      $fwrite(fid_i, "%d\t%d\n", i_out, q_out);
       ok <= 1;
     end
   end

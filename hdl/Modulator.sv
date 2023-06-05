@@ -68,6 +68,10 @@ wire m_axis_data_tvalid_cic_Q;
 wire signed [15:0] s_axis_data_tdata_cic_Q;
 wire signed [31:0] m_axis_data_tdata_cic_Q;
 
+// immit_data_coder
+wire psp_data_out_en;
+wire [7:0] psp_data_out;
+
 assign i_enable_spread = ~prog_full_fifo_with_spread;
 
 assign s_axis_data_tdata_firx4 = {m_axis_data_tdata_firx2[63:48], m_axis_data_tdata_firx2[31:16]};
@@ -75,15 +79,24 @@ assign s_axis_data_tdata_firx4 = {m_axis_data_tdata_firx2[63:48], m_axis_data_td
 assign s_axis_data_tdata_cic_I = m_axis_data_tdata_firx4[72-2:55];
 assign s_axis_data_tdata_cic_Q = m_axis_data_tdata_firx4[32-2:15];
 
+immit_data_coder immit_data_coder(
+  .clk(i_clk),
+  .reset(i_reset),
+  .enable(o_ready),
+
+  .data_out_en(psp_data_out_en),
+  .data_out(psp_data_out)
+);
+
 Pack Pack (
   // Управляющие сигналы
   .i_clk(i_clk),
   .i_reset(i_reset),
   .o_ready(o_ready),
   // Входные данные
-  .i_data(i_data),
+  .i_data(psp_data_out),
   .i_ready_output(o_ready_spread),
-  .i_valid_input(i_valid_input),
+  .i_valid_input(psp_data_out_en),
   // Выходные данные
   .o_data(o_data_pack),
   .o_valid(o_valid_pack)
@@ -141,14 +154,18 @@ QPSK QPSK (
   .o_valid(o_valid_fir_filter)
 );
 
+wire tready_firx2;
 fir_compiler_0 fir_filterx2 (
   .aclk(i_clk),
   .s_axis_data_tvalid(o_valid_fir_filter),
-  .s_axis_data_tready(),
+  .s_axis_data_tready(tready_firx2),
   .s_axis_data_tdata(o_data_fir_filter),
   .m_axis_data_tvalid(m_axis_data_tvalid_firx2),
   .m_axis_data_tdata(m_axis_data_tdata_firx2)
 );
+wire signed [31:0] fir_out_data_i, fir_out_data_q;
+assign fir_out_data_i = m_axis_data_tdata_firx2[31:0];
+assign fir_out_data_q = m_axis_data_tdata_firx2[63:32];
 
 fir_4x fir_4x(
   .aclk(i_clk),
@@ -177,7 +194,7 @@ cic cic_Q (
   .m_axis_data_tvalid(m_axis_data_tvalid_cic_Q)
 );
 
-assign o_data = o_data_fir_filter /*{m_axis_data_tdata_cic_I[31-2:14], m_axis_data_tdata_cic_Q[31-2:14]}*/;
-assign o_valid_output = o_valid_fir_filter /*m_axis_data_tvalid_cic_I && m_axis_data_tvalid_cic_Q*/;
+assign o_data = {m_axis_data_tdata_cic_I[31-2:14], m_axis_data_tdata_cic_Q[31-2:14]};
+assign o_valid_output = m_axis_data_tvalid_cic_I && m_axis_data_tvalid_cic_Q;
 
 endmodule
