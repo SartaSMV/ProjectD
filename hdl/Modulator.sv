@@ -163,9 +163,6 @@ fir_compiler_0 fir_filterx2 (
   .m_axis_data_tvalid(m_axis_data_tvalid_firx2),
   .m_axis_data_tdata(m_axis_data_tdata_firx2)
 );
-wire signed [31:0] fir_out_data_i, fir_out_data_q;
-assign fir_out_data_i = m_axis_data_tdata_firx2[31:0];
-assign fir_out_data_q = m_axis_data_tdata_firx2[63:32];
 
 fir_4x fir_4x(
   .aclk(i_clk),
