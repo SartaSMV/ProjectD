@@ -88,7 +88,7 @@ always @(posedge i_clk) begin
     if(o_valid) begin
       if(counter == SPREAD - 1) begin
         // Ждем воз
-        if(~i_enable) begin
+        if(~i_enable && ~o_ready) begin
           lfsr_ready <= 1'b0;
         end
         // Считываем новый бит

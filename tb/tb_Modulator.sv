@@ -13,7 +13,7 @@ module tb_Modulator #(
   parameter ADDR_FIRST_WRITE = SISE_PREAMBLE / SIZE_INPUT_BIT,
   parameter SIZE_ADDR_OUTPUT = $clog2(SIZE_BIT_PACK),
 
-  parameter OUT_FILE = SIZE_BIT_PACK * 240 * 2,
+  parameter OUT_FILE = 109000000,
   parameter SIZE_COUNTER = $clog2(OUT_FILE)
 );
 
@@ -73,7 +73,7 @@ initial begin
     else ref_output_blank[i] = 0;
   end
 
-  fid_i = $fopen("output.txt", "w");
+  fid_i = $fopen("ProjectD.txt", "w");
 
 
   i_clk <= 0;
@@ -93,23 +93,30 @@ end
 parameter SIZE_QI = 16;
 wire signed [SIZE_QI-1:0] q_out;
 wire signed [SIZE_QI-1:0] i_out;
-assign i_out = tb.s_axis_data_tdata_firx4[31:16] /*o_data[31:16]*/;
-assign q_out = tb.s_axis_data_tdata_firx4[15:0] /*o_data[15:0]*/;
+assign i_out = o_data[31:16];
+assign q_out = o_data[15:0];
 reg ok;
 reg [SIZE_COUNTER-1:0] count_spread;
+//reg [15:0] test_write_i = 16'h0, test_write_q = 16'h0;
 always @(posedge i_clk or posedge i_reset) begin
   if(i_reset) begin
     count_spread <= {SIZE_COUNTER{1'b0}};
     ok <= 0;
   end
-  else if(tb.m_axis_data_tvalid_firx2/*o_valid_output*/) begin
+  else if(o_valid_output) begin
     if(count_spread < OUT_FILE - 1) begin
       count_spread <= count_spread + 1;
       $fwrite(fid_i, "%d\t%d\n", i_out, q_out);
+      /*if(count_spread >= 9000) begin
+        $fwrite(fid_i, "%u", {test_write_i, test_write_q});
+        test_write_i <= i_out;
+        test_write_q<= q_out;
+      end*/
     end
     else begin
       count_spread <= {SIZE_COUNTER{1'b0}};
       $fwrite(fid_i, "%d\t%d\n", i_out, q_out);
+      //$fwrite(fid_i, "%b", {i_out, q_out});
       ok <= 1;
     end
   end

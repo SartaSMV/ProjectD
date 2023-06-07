@@ -24,6 +24,8 @@ module immit_data_coder (
     input reset,
     input enable,
 
+    output psp_out_en,
+    output psp_out_data,
     output data_out_en,
     output [7:0] data_out
 );
@@ -34,6 +36,9 @@ reg [7:0] temp_par_data, fix_data_out;
 reg [22:0] register_generate_inf;
 
 wire control_psp_reg;
+
+assign psp_out_en = enable_reg;
+assign psp_out_data = control_psp_reg;
 
 assign data_out_en = data_out_en_reg;
 assign data_out = fix_data_out;

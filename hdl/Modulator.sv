@@ -56,7 +56,7 @@ wire [63:0] m_axis_data_tdata_firx2;
 // firx4
 wire [31:0] s_axis_data_tdata_firx4;
 wire m_axis_data_tvalid_firx4;
-wire [79:0] m_axis_data_tdata_firx4;
+wire [63:0] m_axis_data_tdata_firx4;
 
 // cic_I
 wire m_axis_data_tvalid_cic_I;
@@ -70,20 +70,23 @@ wire signed [31:0] m_axis_data_tdata_cic_Q;
 
 // immit_data_coder
 wire psp_data_out_en;
+wire psp_out_en, psp_out_data;
 wire [7:0] psp_data_out;
 
 assign i_enable_spread = ~prog_full_fifo_with_spread;
 
 assign s_axis_data_tdata_firx4 = {m_axis_data_tdata_firx2[63:48], m_axis_data_tdata_firx2[31:16]};
 
-assign s_axis_data_tdata_cic_I = m_axis_data_tdata_firx4[72-2:55];
-assign s_axis_data_tdata_cic_Q = m_axis_data_tdata_firx4[32-2:15];
+assign s_axis_data_tdata_cic_I = m_axis_data_tdata_firx4[61 -:16];
+assign s_axis_data_tdata_cic_Q = m_axis_data_tdata_firx4[29 -:16];
 
 immit_data_coder immit_data_coder(
   .clk(i_clk),
   .reset(i_reset),
-  .enable(o_ready),
+  .enable(o_ready), //i_enable_spread 
 
+  .psp_out_en(psp_out_en),
+  .psp_out_data(psp_out_data),
   .data_out_en(psp_data_out_en),
   .data_out(psp_data_out)
 );
@@ -132,8 +135,8 @@ Divider_clk_for_fifo_with_spread (
 fifo_generator_0 fifo_with_spread (
   .clk(i_clk),
   .srst(i_reset),
-  .din(o_data_spread),
-  .wr_en(o_valid_spread),
+  .din(o_data_spread), //psp_out_data 
+  .wr_en(o_valid_spread), //psp_out_en 
   .rd_en(i_rd_en_fifo_with_spread),
   .dout(o_data_fifo_with_spread),
   .full(),
@@ -192,6 +195,6 @@ cic cic_Q (
 );
 
 assign o_data = {m_axis_data_tdata_cic_I[31-2:14], m_axis_data_tdata_cic_Q[31-2:14]};
-assign o_valid_output = m_axis_data_tvalid_cic_I && m_axis_data_tvalid_cic_Q;
+assign o_valid_output = m_axis_data_tvalid_cic_I;
 
 endmodule
